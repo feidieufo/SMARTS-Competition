@@ -1,4 +1,4 @@
-FROM ubuntu:bionic
+FROM nvidia/cuda:10.0-devel-ubuntu18.04
 
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -32,7 +32,8 @@ RUN apt-get update --fix-missing && \
         libspatialindex-dev \
         libsm6 \
         libxext6 \
-        libxrender-dev
+        libxrender-dev \
+        vim \
 
 # Update default python version
 RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.7 1
@@ -52,6 +53,11 @@ RUN apt-get install -y \
 # VOLUME /tmp/.X11-unix
 RUN wget -O /etc/X11/xorg.conf http://xpra.org/xorg.conf
 RUN cp /etc/X11/xorg.conf /usr/share/X11/xorg.conf.d/xorg.conf
+
+RUN pip install tensorflow-gpu==1.15 
+RUN pip torch==1.4+cu100 torchvision==0.5+cu100 -f https://download.pytorch.org/whl/torch_stable.html
+COPY smarts-0.3.7-py3-none-any.whl ~/smarts-0.3.7-py3-none-any.whl
+RUN pip install ~/smarts-0.3.7-py3-none-any.whl
 
 RUN echo "Cleaning-up"
 RUN apt-get autoremove && \
