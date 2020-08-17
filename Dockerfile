@@ -56,8 +56,6 @@ RUN cp /etc/X11/xorg.conf /usr/share/X11/xorg.conf.d/xorg.conf
 
 RUN pip install tensorflow-gpu==1.15 
 RUN pip install torch==1.4+cu100 torchvision==0.5+cu100 -f https://download.pytorch.org/whl/torch_stable.html
-COPY smarts-0.3.7-py3-none-any.whl ~/smarts-0.3.7-py3-none-any.whl
-RUN pip install ~/smarts-0.3.7-py3-none-any.whl
 
 RUN echo "Cleaning-up"
 RUN apt-get autoremove && \
