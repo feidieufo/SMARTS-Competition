@@ -33,7 +33,7 @@ RUN apt-get update --fix-missing && \
         libsm6 \
         libxext6 \
         libxrender-dev \
-        vim \
+        vim 
 
 # Update default python version
 RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.7 1
