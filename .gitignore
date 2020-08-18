@@ -1,0 +1,6 @@
+*.pyc
+.vscode
+.keras
+.viminfo
+cuda
+supervisord

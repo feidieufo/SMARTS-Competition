@@ -6,7 +6,7 @@ from agent import agent_spec
 
 # Path to the scenario to test
 scenario_path = (
-    Path(__file__).parent / "../../dataset_public/roundabout_loop/roundabout_a"
+    Path(__file__).parent / "../dataset_public/roundabout_loop/roundabout_a"
 ).resolve()
 
 AGENT_ID = "Agent-007"
