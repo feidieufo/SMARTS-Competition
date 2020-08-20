@@ -59,7 +59,7 @@ def main(args):
     # ====================================
     # init env config
     # ====================================
-
+    ray.init(dashboard_host='127.0.0.1', dashboard_port=8265)
     # use ray cluster for training
     # ray.init(
     #     address="auto" if args.address is None else args.address,

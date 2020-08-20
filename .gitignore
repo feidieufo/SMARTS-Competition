@@ -3,4 +3,6 @@
 .keras
 .viminfo
 cuda
-supervisord
+supervisord*
+results
+zhr/check*

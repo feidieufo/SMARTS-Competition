@@ -17,7 +17,7 @@ from utils.callback import (
 RUN_NAME = Path(__file__).stem
 EXPERIMENT_NAME = "{scenario}-{algorithm}-{n_agent}"
 
-scenario_root = (Path(__file__).parent / "../../dataset_public").resolve()
+scenario_root = (Path(__file__).parent / "../dataset_public").resolve()
 
 scenario_paths = [
     scenario
@@ -71,6 +71,7 @@ def main(args):
     # ====================================
     # init env config
     # ====================================
+    ray.init(dashboard_host='127.0.0.1', dashboard_port=8265)
     # use ray cluster for training
     # ray.init(
     #     address="auto" if args.address is None else args.address,
@@ -121,6 +122,7 @@ def main(args):
         "num_workers": args.num_workers,
         "horizon": args.horizon,
         "train_batch_size": 10240 * 3,
+        "num_gpus": 1,
     }
 
     if args.algorithm == "PPO":
