@@ -61,6 +61,8 @@ class RLlibTFCheckpointPolicy(AgentPolicy):
             objs = pickle.load(open(self._checkpoint_path, "rb"))
             objs = pickle.loads(objs["worker"])
             state = objs["state"]
+            filters = objs["filters"]
+            self.filters = filters[self._policy_name]
             weights = state[self._policy_name]
             self.policy.set_weights(weights)
 
@@ -68,10 +70,12 @@ class RLlibTFCheckpointPolicy(AgentPolicy):
         if isinstance(obs, list):
             # batch infer
             obs = [self._prep.transform(o) for o in obs]
+            obs = self.filters(obs, update=False)
             action = self.policy.compute_actions(obs, explore=False)[0]
         else:
             # single infer
             obs = self._prep.transform(obs)
+            obs = self.filters(obs, update=False)
             action = self.policy.compute_actions([obs], explore=False)[0][0]
 
         return action
