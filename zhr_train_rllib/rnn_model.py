@@ -18,7 +18,7 @@ class RNNModel(RecurrentNetwork, nn.Module):
         self.obs_size = _get_size(obs_space)
         self.rnn_hidden_dim = model_config["lstm_cell_size"]
         self.fc1 = nn.Linear(self.obs_size, self.rnn_hidden_dim)
-        self.rnn = nn.GRUCell(self.rnn_hidden_dim, self.rnn_hidden_dim)
+        self.rnn = nn.GRU(self.rnn_hidden_dim, self.rnn_hidden_dim, batch_first=True)
         self.fc2 = nn.Linear(self.rnn_hidden_dim, num_outputs)
 
         self.value_branch = nn.Linear(self.rnn_hidden_dim, 1)
@@ -32,22 +32,15 @@ class RNNModel(RecurrentNetwork, nn.Module):
     @override(ModelV2)
     def value_function(self):
         assert self._cur_value is not None, "must call forward() first"
-        return self._cur_value
-
-    @override(RecurrentNetwork)
-    def forward(self, input_dict, state, seq_lens):
-        output, new_state = self.forward_rnn(input_dict["obs_flat"].float(), state, seq_lens)
-        return torch.reshape(output, [-1, self.num_outputs]), new_state        
+        return torch.reshape(self._cur_value, [-1])   
 
     @override(RecurrentNetwork)
     def forward_rnn(self, input_dict, hidden_state, seq_lens):
         x = nn.functional.relu(self.fc1(input_dict))
-        h_in = hidden_state[0].reshape(-1, self.rnn_hidden_dim)
-        h = self.rnn(x, h_in)
-        q = self.fc2(h)
-        self._cur_value = self.value_branch(h).squeeze(1)
-        return q, [h]
-
+        x, h = self.rnn(x, torch.unsqueeze(hidden_state[0], 0))
+        q = self.fc2(x)
+        self._cur_value = self.value_branch(x).squeeze(1)
+        return q, [torch.squeeze(h, 0)]        
 
 def _get_size(obs_space):
     return get_preprocessor(obs_space)(obs_space).size

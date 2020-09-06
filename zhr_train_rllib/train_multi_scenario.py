@@ -56,6 +56,9 @@ def parse_args():
         "--resume", default=False, action="store_true", help="Resume training or not."
     )
     parser.add_argument(
+        "--no_debug", default=False, action="store_true"
+    )
+    parser.add_argument(
         "--restore",
         default=None,
         type=str,
@@ -77,7 +80,10 @@ def main(args):
     # ====================================
     # init env config
     # ====================================
-    ray.init(dashboard_host='127.0.0.1', dashboard_port=8265, local_mode=True)
+    if args.no_debug:
+        ray.init(dashboard_host='127.0.0.1', dashboard_port=8265)
+    else:
+        ray.init(dashboard_host='127.0.0.1', dashboard_port=8265, local_mode=True)
     # use ray cluster for training
     # ray.init(
     #     address="auto" if args.address is None else args.address,
@@ -132,8 +138,15 @@ def main(args):
         "log_level": "WARN",
         "num_workers": args.num_workers,
         "horizon": args.horizon,
-        "train_batch_size": 10240 * 3,
-        "num_gpus": 1,
+        "train_batch_size": 102 * 3,
+
+        "observation_filter": "MeanStdFilter",
+        "batch_mode": "truncate_episodes",
+        "grad_clip": 0.5, 
+
+        # "model":{
+        #     "use_lstm": True,
+        # },
     }
 
     tune_config.update(
@@ -141,7 +154,7 @@ def main(args):
             "lambda": 0.95,
             "clip_param": 0.2,
             "num_sgd_iter": 10,
-            "sgd_minibatch_size": 1024,
+            "sgd_minibatch_size": 102,
         }
     )
 
@@ -165,6 +178,7 @@ def main(args):
     # run experiments
     analysis = tune.run(
         PPOTrainer,
+        # "PPO",
         name=experiment_name,
         stop={"time_total_s": 24 * 60 * 60},
         checkpoint_freq=2,

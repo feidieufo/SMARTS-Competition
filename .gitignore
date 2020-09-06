@@ -7,3 +7,4 @@ supervisord*
 results
 zhr/check*
 zhr_train/data
+nohup_log
