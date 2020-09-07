@@ -138,7 +138,7 @@ def main(args):
         "log_level": "WARN",
         "num_workers": args.num_workers,
         "horizon": args.horizon,
-        "train_batch_size": 102 * 3,
+        "train_batch_size": 10240 * 3,
 
         "observation_filter": "MeanStdFilter",
         "batch_mode": "truncate_episodes",
@@ -154,7 +154,7 @@ def main(args):
             "lambda": 0.95,
             "clip_param": 0.2,
             "num_sgd_iter": 10,
-            "sgd_minibatch_size": 102,
+            "sgd_minibatch_size": 1024,
         }
     )
 
