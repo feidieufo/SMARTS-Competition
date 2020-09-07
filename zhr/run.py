@@ -12,8 +12,14 @@ from agent import agent_spec
 #     Path(__file__).parent / "../dataset_public/all_loop/all_loop_a"
 # ).resolve()
 scenario_path = (
-    Path(__file__).parent / "../dataset_public/simple_loop/simpleloop_a"
+    Path(__file__).parent / "../dataset_public/intersection_loop/its_a"
 ).resolve()
+# scenario_path = (
+#     Path(__file__).parent / "../dataset_public/simple_loop/simpleloop_a"
+# ).resolve()
+# scenario_path = (
+#     Path(__file__).parent / "../dataset_public/sharp_loop/sharploop_a"
+# ).resolve()
 # scenario_root = (Path(__file__).parent / "../dataset_public").resolve()
 
 # scenario_path = [
