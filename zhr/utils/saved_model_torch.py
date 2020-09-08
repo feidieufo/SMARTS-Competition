@@ -27,7 +27,7 @@ class RLlibTorchGRUPolicy(AgentPolicy):
         from utils.rnn_model import RNNModel
         ModelCatalog.register_custom_model("my_rnn", RNNModel)
         config = ray.rllib.agents.ppo.ppo.DEFAULT_CONFIG.copy()
-        # config['num_workers'] = 0
+        config['num_workers'] = 0
         config["model"]["custom_model"] = "my_rnn"
 
         self.policy = LoadPolicy(flat_obs_space, self._action_space, config)

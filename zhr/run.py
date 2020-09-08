@@ -8,12 +8,12 @@ from agent import agent_spec
 # scenario_path = (
 #     Path(__file__).parent / "../dataset_public/roundabout_loop/roundabout_a"
 # ).resolve()
-# scenario_path = (
-#     Path(__file__).parent / "../dataset_public/all_loop/all_loop_a"
-# ).resolve()
 scenario_path = (
-    Path(__file__).parent / "../dataset_public/intersection_loop/its_a"
+    Path(__file__).parent / "../dataset_public/all_loop/all_loop_a"
 ).resolve()
+# scenario_path = (
+#     Path(__file__).parent / "../dataset_public/intersection_loop/its_a"
+# ).resolve()
 # scenario_path = (
 #     Path(__file__).parent / "../dataset_public/simple_loop/simpleloop_a"
 # ).resolve()
