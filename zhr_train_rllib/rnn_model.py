@@ -44,3 +44,45 @@ class RNNModel(RecurrentNetwork, nn.Module):
 
 def _get_size(obs_space):
     return get_preprocessor(obs_space)(obs_space).size
+
+class RNNDVEModel(RecurrentNetwork, nn.Module):
+
+    def __init__(self, obs_space, action_space, num_outputs, model_config,
+                 name="rnn_model"):
+        TorchModelV2.__init__(self, obs_space, action_space, num_outputs,
+                              model_config, name)
+        nn.Module.__init__(self)
+        self.obs_size = _get_size(obs_space)
+        self.rnn_hidden_dim = model_config["lstm_cell_size"]
+        self.fc1 = nn.Linear(self.obs_size, self.rnn_hidden_dim)
+        self.rnn = nn.GRU(self.rnn_hidden_dim, self.rnn_hidden_dim, batch_first=True)
+        self.fc2 = nn.Linear(self.rnn_hidden_dim, num_outputs)
+
+        self.mu = nn.Linear(self.rnn_hidden_dim, 7)
+        self.alpha = nn.Sequential(
+            nn.Linear(self.rnn_hidden_dim, 7),
+            nn.Softmax(dim=-1)
+        )
+        
+
+        # self.value_branch = nn.Linear(self.rnn_hidden_dim, 1)
+        self._cur_value = None        
+
+    @override(ModelV2)
+    def get_initial_state(self):
+        # Place hidden states on same device as model.
+        return [self.fc1.weight.new(1, self.rnn_hidden_dim).zero_().squeeze(0)]
+
+    @override(ModelV2)
+    def value_function(self):
+        assert self._cur_value is not None, "must call forward() first"
+        return torch.reshape(self._cur_value, [-1])   
+
+    @override(RecurrentNetwork)
+    def forward_rnn(self, input_dict, hidden_state, seq_lens):
+        x = nn.functional.relu(self.fc1(input_dict))
+        x, h = self.rnn(x, torch.unsqueeze(hidden_state[0], 0))
+        a = self.fc2(x)
+
+        self._cur_value = torch.sum(self.mu(x)*self.alpha(x), dim=-1)
+        return a, [torch.squeeze(h, 0)]   
