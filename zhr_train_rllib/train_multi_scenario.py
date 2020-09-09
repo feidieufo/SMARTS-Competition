@@ -81,9 +81,9 @@ def main(args):
     # init env config
     # ====================================
     if args.no_debug:
-        ray.init(dashboard_host='127.0.0.1', dashboard_port=8265)
+        ray.init()
     else:
-        ray.init(dashboard_host='127.0.0.1', dashboard_port=8265, local_mode=True)
+        ray.init(local_mode=True)
     # use ray cluster for training
     # ray.init(
     #     address="auto" if args.address is None else args.address,

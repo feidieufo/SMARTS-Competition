@@ -8,7 +8,7 @@ from utils.continuous_space import agent_spec, OBSERVATION_SPACE, ACTION_SPACE
 from utils.saved_model_torch import RLlibTorchGRUPolicy, RLlibTorchGRUDVEPolicy
 
 load_path = "checkpoint_376_dve144/checkpoint-376"
-# load_path = "checkpoint_536_gru28/checkpoint-536"
+# load_path = "checkpoint_800_gru28/checkpoint-800"
 # load_path = "checkpoint_792/checkpoint-792"
 # load_path = "model"
 # load_path = "checkpoint/checkpoint"
