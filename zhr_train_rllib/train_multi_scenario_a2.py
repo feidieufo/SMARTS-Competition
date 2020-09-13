@@ -3,7 +3,7 @@ from pathlib import Path
 
 import ray
 from ray import tune
-from zhr_train_rllib.utils.continuous_space import agent_spec, OBSERVATION_SPACE, ACTION_SPACE
+from zhr_train_rllib.utils.continuous_space_a2 import agent_spec, OBSERVATION_SPACE, ACTION_SPACE
 from zhr_train_rllib.ppo_policy import PPOTorchPolicy
 from .rnn_model import RNNModel
 from ray.rllib.models import ModelCatalog
