@@ -11,7 +11,7 @@ from utils.saved_model_torch import RLlibTorchGRUPolicy, RLlibTorchGRUDVEPolicy,
 # load_path = "checkpoint_800_gru28/checkpoint-800"
 # load_path = "checkpoint_792/checkpoint-792"
 # load_path = "checkpoint_912_a2/checkpoint-912"
-load_path = "checkpoint_406_gru_a2/checkpoint-406"
+load_path = "checkpoint_912_gru_a2/checkpoint-912"
 # load_path = "checkpoint_474_fc_a2/checkpoint-474"
 # load_path = "model"
 # load_path = "checkpoint/checkpoint"
