@@ -448,7 +448,7 @@ def observation_adapter(env_obs):
     lane_hwidth = closest_wp.lane_width * 0.5
     norm_dist_from_center = signed_dist_from_center / lane_hwidth
 
-    distance_each_line = np.array([-1]*5)
+    distance_each_line = np.array([-1.0]*5)
     wp_num = len(wp_paths)
     for i, closest in enumerate(closest_wps):
         signed_dist_from_center = closest.signed_lateral_error(ego_state.position)
@@ -456,9 +456,10 @@ def observation_adapter(env_obs):
         norm_dist_from_center = signed_dist_from_center / (lane_hwidth*wp_num)
 
         distance_each_line[i] = norm_dist_from_center
-    waypoint_each_line = np.array([0]*5)
+    waypoint_each_line = np.array([0.0]*5)
     for i, w in enumerate(wp_paths):
-        waypoint_each_line[i] = len(w)
+        w_num = len(w)/51.0
+        waypoint_each_line[i] = w_num
 
     # wp heading errors in current lane in front of vehicle
     indices = np.array([0, 1, 2, 3, 5, 8, 13, 21, 34, 50])
