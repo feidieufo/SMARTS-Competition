@@ -128,6 +128,7 @@ def main(args):
         },
         "model": {
             "custom_model": "my_rnn",
+            "free_log_std": True,
         },
         "framework": "torch",
         "callbacks": {
