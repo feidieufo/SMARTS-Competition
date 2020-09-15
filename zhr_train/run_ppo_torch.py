@@ -104,26 +104,28 @@ if __name__ == '__main__':
     parser.add_argument('--iteration', default=int(1e3), type=int)
     parser.add_argument('--gamma', default=0.99, type=float)
     parser.add_argument('--lam', default=0.95, type=float)
+    parser.add_argument('--c_en', default=0.01, type=float)    
+    parser.add_argument('--c_vf', default=0.5, type=float)
     parser.add_argument('--a_update', default=10, type=int)
     parser.add_argument('--lr', default=3e-4, type=float)
     parser.add_argument('--log', type=str, default="logs")
-    parser.add_argument('--steps', default=300, type=int)
+    parser.add_argument('--steps', default=3000, type=int)
     parser.add_argument('--gpu', default=0, type=int)
     parser.add_argument('--env', default="CartPole-v1")
     parser.add_argument('--env_num', default=4, type=int)
     parser.add_argument('--exp_name', default="ppo_cartpole")
     parser.add_argument('--seed', default=0, type=int)
     parser.add_argument('--batch', default=50, type=int)
-    parser.add_argument('--norm_state', default=False, type=bool)
-    parser.add_argument('--norm_rewards', default=False, type=bool)
-    parser.add_argument('--is_clip_v', default=True, type=bool)
-    parser.add_argument('--is_gae', default=True, type=bool)
-    parser.add_argument('--max_grad_norm', default=False, type=bool)
-    parser.add_argument('--anneal_lr', default=False, type=bool)
-    parser.add_argument('--debug', default=True, type=bool)
+    parser.add_argument('--norm_state', action="store_true")
+    parser.add_argument('--norm_rewards', default=None, type=str)
+    parser.add_argument('--is_clip_v', action="store_true")
+    parser.add_argument('--last_v', action="store_true")
+    parser.add_argument('--is_gae', action="store_true")
+    parser.add_argument('--max_grad_norm', default=-1, type=float)
+    parser.add_argument('--anneal_lr', action="store_true")
+    parser.add_argument('--debug', action="store_false")
     parser.add_argument('--log_every', default=10, type=int)
-    parser.add_argument('--target_kl', default=0.03, type=float)
-    parser.add_argument('--test_epoch', default=10, type=int)    
+    parser.add_argument('--target_kl', default=0.03, type=float) 
     args = parser.parse_args()
 
     device = torch.device("cuda:"+str(args.gpu) if torch.cuda.is_available() else "cpu")
@@ -136,7 +138,7 @@ if __name__ == '__main__':
     writer = SummaryWriter(os.path.join(logger.output_dir, "logs"))
 
     scenario_path = (
-    Path(__file__).parent / "../dataset_public/simple_loop/simpleloop_a").resolve()
+    Path(__file__).parent / "../dataset_public/all_loop/all_loop_a").resolve()
 
     AGENT_ID = "Agent-007"
     env = gym.make(
@@ -166,7 +168,7 @@ if __name__ == '__main__':
         act_dim = ACTION_SPACE.shape
         action_max = ACTION_SPACE.high[0]
     ppo = core.PPO(state_dim, act_dim, action_max, 0.2, device, lr_a=args.lr, max_grad_norm=args.max_grad_norm,
-                   anneal_lr=args.anneal_lr, train_steps=args.iteration)
+                   anneal_lr=args.anneal_lr, train_steps=args.iteration, c_en=args.c_en, c_vf=args.c_vf)
     replay = ReplayBuffer(args.steps, state_dim, act_dim, is_gae=args.is_gae)
 
     state_norm = Identity()
@@ -202,7 +204,7 @@ if __name__ == '__main__':
             obs = obs_
             if done[AGENT_ID] or step == args.steps-1:
                 logger.store(reward=rew)
-                if done[AGENT_ID]
+                if done[AGENT_ID]:
                     rew = 0
                     obs = env.reset()
                     state_norm.reset()
@@ -237,7 +239,7 @@ if __name__ == '__main__':
                     logger.store(entropy=info["entropy"])
                     logger.store(kl=info["kl"])
             
-            if logger.get_stats("kl")[0] > args.target_kl:
+            if logger.get_stats("kl", with_min_and_max=True)[3] > args.target_kl:
                 print("stop at:", str(i))
                 break
 
