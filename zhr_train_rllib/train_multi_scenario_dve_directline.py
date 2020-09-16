@@ -5,9 +5,8 @@ import ray
 from ray import tune
 from zhr_train_rllib.utils.continuous_space_a2_directline import agent_spec, OBSERVATION_SPACE, ACTION_SPACE
 from zhr_train_rllib.ppo_policy import PPOTorchPolicy
-from .rnn_model import RNNModel
+from .rnn_model import RNNDVEModel
 from ray.rllib.models import ModelCatalog
-import random
 
 from smarts.env.rllib_hiway_env import RLlibHiWayEnv
 from .utils.callback import (
@@ -116,7 +115,7 @@ def main(args):
             ]
             super(MultiEnv, self).__init__(config=env_config)
 
-    ModelCatalog.register_custom_model("my_rnn", RNNModel)
+    ModelCatalog.register_custom_model("my_rnn", RNNDVEModel)
     tune_config = {
         "env": MultiEnv,
         "env_config": env_config,
