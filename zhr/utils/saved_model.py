@@ -7,6 +7,7 @@ import pickle
 import gym
 from ray.rllib.models import ModelCatalog
 from ray.rllib.utils import try_import_tf
+import ray
 
 from smarts.core.agent import AgentPolicy
 
@@ -130,6 +131,66 @@ class RLlibTFA2Policy(AgentPolicy):
             # single infer
             obs = self._prep.transform(obs)
             action = self.policy.compute_actions([obs], explore=False)[0][0]
+
+        return action
+
+class RLlibTFA2FilterPolicy(AgentPolicy):
+    def __init__(
+        self, load_path, algorithm, policy_name, observation_space, action_space
+    ):
+        self._checkpoint_path = load_path
+        self._algorithm = algorithm
+        self._policy_name = policy_name
+        self._observation_space = observation_space
+        self._action_space = action_space
+        self._sess = None
+
+        if isinstance(action_space, gym.spaces.Box):
+            self.is_continuous = True
+        elif isinstance(action_space, gym.spaces.Discrete):
+            self.is_continuous = False
+        else:
+            raise TypeError("Unsupport action space")
+
+        if self._sess:
+            return
+
+        if self._algorithm == "PPO":
+            from ray.rllib.agents.ppo.ppo_tf_policy import PPOTFPolicy as LoadPolicy
+        elif self._algorithm in ["A2C", "A3C"]:
+            from ray.rllib.agents.a3c.a3c_tf_policy import A3CTFPolicy as LoadPolicy
+        elif self._algorithm == "PG":
+            from ray.rllib.agents.pg.pg_tf_policy import PGTFPolicy as LoadPolicy
+        elif self._algorithm == "DQN":
+            from ray.rllib.agents.dqn.dqn_tf_policy import DQNTFPolicy as LoadPolicy
+        else:
+            raise TypeError("Unsupport algorithm")
+
+        self._prep = ModelCatalog.get_preprocessor_for_space(self._observation_space)
+        self._sess = tf.Session(graph=tf.Graph())
+        self._sess.__enter__()
+
+        with tf.name_scope(self._policy_name):
+            # obs_space need to be flattened before passed to PPOTFPolicy
+            flat_obs_space = self._prep.observation_space
+            config = ray.rllib.agents.ppo.ppo.DEFAULT_CONFIG.copy()
+            config['num_workers'] = 0
+            config['model']['free_log_std'] = True
+            self.policy = LoadPolicy(flat_obs_space, self._action_space, config)
+            objs = pickle.load(open(self._checkpoint_path, "rb"))
+            objs = pickle.loads(objs["worker"])
+            state = objs["state"]
+            filters = objs["filters"]
+            self.filters = filters[self._policy_name]
+            weights = state[self._policy_name]
+            self.policy.set_weights(weights)
+
+    def act(self, obs):
+
+        # single infer
+        obs = self._prep.transform(obs)
+        obs = self.filters(obs, update=False)
+        action = self.policy.compute_actions([obs], explore=False)[0][0]
 
         return action
 

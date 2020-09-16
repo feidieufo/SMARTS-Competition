@@ -8,17 +8,29 @@ from agent import agent_spec
 # scenario_path = (
 #     Path(__file__).parent / "../dataset_public/roundabout_loop/roundabout_a"
 # ).resolve()
-# scenario_path = (
-#     Path(__file__).parent / "../dataset_public/all_loop/all_loop_a"
-# ).resolve()
 scenario_path = (
-    Path(__file__).parent / "../dataset_public/intersection_loop/its_a"
+    Path(__file__).parent / "../dataset_public/all_loop/all_loop_a"
 ).resolve()
+# scenario_path = (
+#     Path(__file__).parent / "../dataset_public/intersection_loop/its_a"
+# ).resolve()
 # scenario_path = (
 #     Path(__file__).parent / "../dataset_public/simple_loop/simpleloop_a"
 # ).resolve()
 # scenario_path = (
 #     Path(__file__).parent / "../dataset_public/sharp_loop/sharploop_a"
+# ).resolve()
+# scenario_path = (
+#     Path(__file__).parent / "../dataset_public/merge_loop/merge_a"
+# ).resolve()
+# scenario_path = (
+#     Path(__file__).parent / "../dataset_public/mixed_loop/roundabout_merge_a"
+# ).resolve()
+# scenario_path = (
+#     Path(__file__).parent / "../dataset_public/mixed_loop/roundabout_its_a"
+# ).resolve()
+# scenario_path = (
+#     Path(__file__).parent / "../dataset_public/mixed_loop/its_merge_a"
 # ).resolve()
 # scenario_root = (Path(__file__).parent / "../dataset_public").resolve()
 
