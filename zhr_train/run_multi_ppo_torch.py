@@ -1,4 +1,4 @@
-import core_torch as core
+import core_multi_branch_torch as core
 import numpy as np
 import gym
 import argparse
@@ -16,6 +16,7 @@ from utils.utils import discount_path, get_path_indices
 from utils.continuous_space import agent_spec, OBSERVATION_SPACE, ACTION_SPACE
 from pathlib import Path
 from ray.rllib.models import ModelCatalog
+import time
 
 
 class ReplayBuffer:
@@ -38,14 +39,16 @@ class ReplayBuffer:
         self.reward = np.zeros((self.size, ), np.float32)
         self.adv = np.zeros((self.size, ), np.float32)
         self.mask = np.zeros((self.size, ), np.float32)
+        self.cline = np.zeros((self.size, ), np.long)
         self.ptr, self.path_start = 0, 0
 
-    def add(self, s, a, r, mask):
+    def add(self, s, a, r, mask, cline):
         if self.ptr < self.size:
             self.state[self.ptr] = s
             self.action[self.ptr] = a
             self.reward[self.ptr] = r
             self.mask[self.ptr] = mask
+            self.cline[self.ptr] = cline
             self.ptr += 1
 
     def update_v(self, v, pos):
@@ -84,7 +87,38 @@ class ReplayBuffer:
 
         for idx in np.arange(0, self.size, batch):
             pos = indices[idx:(idx + batch)]
-            yield (self.state[pos], self.action[pos], self.reward[pos], self.adv[pos], self.v[pos])
+            yield (self.state[pos], self.action[pos], self.reward[pos], 
+            self.adv[pos], self.v[pos], self.cline[pos])
+
+class StateNormalization:
+    def __init__(self, pre_filter, shape, demean=True, destd=True, clip=10.0):
+        self.demean = demean
+        self.destd = destd
+        self.clip = clip
+        self.pre_filter = pre_filter
+
+        self.rs = RunningStat(shape)
+
+    def __call__(self, x, update=True):
+        x = self.pre_filter(x)
+        obs = x["obs"]
+        if update:
+            self.rs.push(obs)
+        if self.demean:
+            obs = obs - self.rs.mean
+        if self.destd:
+            obs = obs / (self.rs.std + 1e-8)
+        if self.clip:
+            obs = np.clip(obs, -self.clip, self.clip)
+        x["obs"] = obs
+        return x
+
+    def reset(self):
+        self.pre_filter.reset()
+
+    @staticmethod
+    def output_shape(input_space):
+        return input_space.shape
 
 class SmartsProcess:
     def __init__(self, pre_filter):
@@ -92,8 +126,9 @@ class SmartsProcess:
 
     def __call__(self, x, update=True):
         x = self.pre_filter(x[AGENT_ID])
+        cline = x.pop("cline")
         x = preprocessor.transform(x)
-        return x
+        return {"obs": x, "cline":cline}
     
     def reset(self):
         self.pre_filter.reset()  
@@ -109,7 +144,7 @@ if __name__ == '__main__':
     parser.add_argument('--a_update', default=10, type=int)
     parser.add_argument('--lr', default=3e-4, type=float)
     parser.add_argument('--log', type=str, default="logs")
-    parser.add_argument('--steps', default=3000, type=int)
+    parser.add_argument('--steps', default=300, type=int)
     parser.add_argument('--gpu', default=0, type=int)
     parser.add_argument('--env', default="CartPole-v1")
     parser.add_argument('--env_num', default=4, type=int)
@@ -124,7 +159,7 @@ if __name__ == '__main__':
     parser.add_argument('--max_grad_norm', default=-1, type=float)
     parser.add_argument('--anneal_lr', action="store_true")
     parser.add_argument('--debug', action="store_false")
-    parser.add_argument('--log_every', default=10, type=int)
+    parser.add_argument('--log_every', default=5, type=int)
     parser.add_argument('--target_kl', default=0.03, type=float)   
     args = parser.parse_args()
 
@@ -183,7 +218,7 @@ if __name__ == '__main__':
     reward_norm = Identity()
     state_norm = SmartsProcess(state_norm)
     if args.norm_state:
-        state_norm = AutoNormalization(state_norm, state_dim, clip=10.0)
+        state_norm = StateNormalization(state_norm, state_dim, clip=10.0)
     if args.norm_rewards == "rewards":
         reward_norm = AutoNormalization(reward_norm, (), clip=10.0)
     elif args.norm_rewards == "returns":
@@ -194,20 +229,23 @@ if __name__ == '__main__':
     obs = env.reset()
     obs = state_norm(obs)
     for iter in range(args.iteration):
+        start = time.time()
         ppo.train()
         replay.reset()
         rew = 0
+        epoch = 0
 
         for step in range(args.steps):
-            state_tensor = torch.tensor(obs, dtype=torch.float32, device=device).unsqueeze(0)
-            a_tensor = ppo.actor.select_action(state_tensor)
+            state_tensor = torch.tensor(obs["obs"], dtype=torch.float32, device=device).unsqueeze(0)
+            c_tensor = torch.tensor(obs["cline"], dtype=torch.long, device=device).unsqueeze(0)
+            a_tensor = ppo.actor.select_action(state_tensor, c_tensor)
             a = a_tensor.detach().cpu().numpy()
             obs_, r, done, _ = env.step({AGENT_ID: a})
             rew += r[AGENT_ID]
             r = reward_norm(r[AGENT_ID])
             mask = 1-done[AGENT_ID]
 
-            replay.add(obs, a, r, mask)
+            replay.add(obs["obs"], a, r, mask, obs["cline"])
 
             obs = obs_
             if done[AGENT_ID] or step == args.steps-1:
@@ -217,6 +255,7 @@ if __name__ == '__main__':
                     obs = env.reset()
                     state_norm.reset()
                     reward_norm.reset()
+                    epoch += 1
             obs = state_norm(obs)
 
         state = replay.state
@@ -226,20 +265,23 @@ if __name__ == '__main__':
             else:
                 pos = np.arange(idx, state.shape[0])
             s = torch.tensor(state[pos], dtype=torch.float32).to(device)
-            v = ppo.getV(s).detach().cpu().numpy()
+            c = torch.tensor(replay.cline[pos], dtype=torch.long).to(device)
+            v = ppo.getV(s, c).detach().cpu().numpy()
             replay.update_v(v, pos)
         replay.finish_path()
 
         ppo.update_a()
         for i in range(args.a_update):
-            for (s, a, r, adv, v) in replay.get_batch(batch=args.batch):
+            for (s, a, r, adv, v, c) in replay.get_batch(batch=args.batch):
                 s_tensor = torch.tensor(s, dtype=torch.float32, device=device)
                 a_tensor = torch.tensor(a, dtype=torch.float32, device=device)
                 adv_tensor = torch.tensor(adv, dtype=torch.float32, device=device)
                 r_tensor = torch.tensor(r, dtype=torch.float32, device=device)
                 v_tensor = torch.tensor(v, dtype=torch.float32, device=device)
+                c_tensor = torch.tensor(c, dtype=torch.long, device=device)
 
-                info = ppo.train_ac(s_tensor, a_tensor, adv_tensor, r_tensor, v_tensor, is_clip_v=args.is_clip_v)
+                info = ppo.train_ac(s_tensor, a_tensor, adv_tensor, r_tensor, 
+                    v_tensor, c_tensor, is_clip_v=args.is_clip_v)
 
                 if args.debug:
                     logger.store(aloss=info["aloss"])
@@ -262,7 +304,10 @@ if __name__ == '__main__':
             writer.add_scalar("entropy", logger.get_stats("entropy")[0], global_step=iter)
             writer.add_scalar("kl", logger.get_stats("kl")[0], global_step=iter)              
 
+        end = time.time()
         logger.log_tabular('Epoch', iter)
+        logger.log_tabular('Episode', epoch)
+        logger.log_tabular('time', (end-start)/60)
         logger.log_tabular("reward", with_min_and_max=True)
         if args.debug:
             logger.log_tabular("aloss", with_min_and_max=True)
@@ -275,9 +320,10 @@ if __name__ == '__main__':
             os.makedirs(os.path.join(logger.output_dir, "checkpoints"))
         if iter % args.log_every == 0:
             state = {
+                "iter": iter,
                 "actor": ppo.actor.state_dict(),
                 "critic": ppo.critic.state_dict(),
-
+                "opti": ppo.opti.state_dict(),
             }
             torch.save(state, os.path.join(logger.output_dir, "checkpoints", str(iter) + '.pth'))
             norm = {"state": state_norm, "reward": reward_norm}

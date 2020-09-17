@@ -22,7 +22,7 @@ intersection_crash_flag = False  # used for training to signal intersect crash
 # ==================================================
 
 ACTION_SPACE = gym.spaces.Box(
-    low=np.array([0.0, 0.0, -1.0]), high=np.array([1.0, 1.0, 1.0]), dtype=np.float32
+    low=np.array([-1.0, -1.0]), high=np.array([1.0, 1.0]), dtype=np.float32
 )
 
 # ==================================================
@@ -56,6 +56,8 @@ OBSERVATION_SPACE = gym.spaces.Dict(
         "closest_its_nv_rel_speed": gym.spaces.Box(low=-1e10, high=1e10, shape=(1,)),
         # intersection closest social vehicle relative position in vehicle heading coordinate
         "closest_its_nv_rel_pos": gym.spaces.Box(low=-1e10, high=1e10, shape=(2,)),
+
+        # "cline": gym.spaces.Box(low=0, high=4, shape=(1,))
     }
 )
 
@@ -436,6 +438,7 @@ def observation_adapter(env_obs):
     """
     ego_state = env_obs.ego_vehicle_state
     wp_paths = env_obs.waypoint_paths
+    cline = len(wp_paths)
     closest_wps = [path[0] for path in wp_paths]
 
     # distance of vehicle from center of lane
@@ -492,6 +495,7 @@ def observation_adapter(env_obs):
         "intersection_distance": np.array([intersection_distance]),
         "closest_its_nv_rel_speed": np.array([closest_its_nv_rel_speed]),
         "closest_its_nv_rel_pos": np.array(closest_its_nv_rel_pos),
+        "cline": cline,
     }
 
 
@@ -528,8 +532,10 @@ def reward_adapter(env_obs, env_reward):
 
 
 def action_adapter(model_action):
-    assert len(model_action) == 3
-    return np.asarray(model_action)
+    assert len(model_action) == 2
+    throttle = np.clip(model_action[0], 0, 1)
+    brake = np.abs(np.clip(model_action[0], -1, 0))
+    return np.asarray([throttle, brake, model_action[1]])
 
 
 def info_adapter(reward, info):
