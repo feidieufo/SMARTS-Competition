@@ -241,14 +241,18 @@ class FCMultiNetwork(TorchModelV2, nn.Module):
     def forward(self, input_dict, state, seq_lens):
         obs = input_dict["obs_flat"].float()
         condition = (input_dict["obs"]["cline"]*5).long()
-        condition_a = torch.cat([condition*2, condition*2+1], dim=-1)
+        if self.free_log_std:
+            condition_a = torch.cat([condition*2, condition*2+1], dim=-1)
+        else:
+            condition_a = torch.cat([condition*4, condition*4+1, condition*4+2, condition*4+3], dim=-1)
+
         self._last_flat_in = obs.reshape(obs.shape[0], -1)
         self._features = self._hidden_layers(self._last_flat_in)
         logits = self._logits(self._features) if self._logits else \
             self._features
         logits_c = torch.gather(logits, dim=-1, index=condition_a)    
         if self.free_log_std:
-            logits = self._append_free_log_std(logits_c)
+            logits_c = self._append_free_log_std(logits_c)
 
         if self._value_branch_separate:
             self.value = self._value_branch(self._value_branch_separate(self._last_flat_in))
@@ -256,7 +260,7 @@ class FCMultiNetwork(TorchModelV2, nn.Module):
         else:
             self.value = self._value_branch(self._features)
             self.value = torch.gather(self.value, dim=-1, index=condition).squeeze(1)
-        return logits, state
+        return logits_c, state
 
     @override(TorchModelV2)
     def value_function(self):
