@@ -109,11 +109,12 @@ class RLlibTorchFCPolicy(AgentPolicy):
         ray.init(ignore_reinit_error=True, local_mode=True)
 
         from utils.ppo_policy import PPOTorchPolicy as LoadPolicy
-        from utils.fc_model import FullyConnectedNetwork
-        ModelCatalog.register_custom_model("my_fc", FullyConnectedNetwork)
+        from utils.fc_model import FCMultiNetwork
+        ModelCatalog.register_custom_model("my_fc", FCMultiNetwork)
         config = ray.rllib.agents.ppo.ppo.DEFAULT_CONFIG.copy()
         config['num_workers'] = 0
         config["model"]["custom_model"] = "my_fc"
+        config['model']['free_log_std'] = True
 
         self.policy = LoadPolicy(flat_obs_space, self._action_space, config)
         objs = pickle.load(open(self._checkpoint_path, "rb"))
