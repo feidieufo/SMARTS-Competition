@@ -32,7 +32,7 @@ from agent import agent_spec
 # scenario_path = (
 #     Path(__file__).parent / "../dataset_public/mixed_loop/its_merge_a"
 # ).resolve()
-scenario_root = (Path(__file__).parent / "../dataset_public_more").resolve()
+scenario_root = (Path(__file__).parent / "../dataset_public").resolve()
 
 scenario_path = [
     scenario

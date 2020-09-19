@@ -82,9 +82,9 @@ def main(args):
     # init env config
     # ====================================
     if args.no_debug:
-        ray.init()
+        ray.init(webui_host="127.0.0.1")
     else:
-        ray.init(local_mode=True)
+        ray.init(webui_host="127.0.0.1", local_mode=True)
     # use ray cluster for training
     # ray.init(
     #     address="auto" if args.address is None else args.address,
