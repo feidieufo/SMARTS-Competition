@@ -9,7 +9,8 @@ from utils.saved_model_torch import RLlibTorchGRUPolicy, RLlibTorchGRUDVEPolicy,
 
 # load_path = "checkpoint_254_fcmultiline_directline/checkpoint-254"
 # load_path = "checkpoint_376_dve144/checkpoint-376"
-load_path = "checkpoint_578_fcmulti_a2/checkpoint-578"
+# load_path = "checkpoint_578_fcmulti_a2/checkpoint-578"
+load_path = "checkpoint_348_fcmulti_a2_vf0.5/checkpoint-348"
 # load_path = "checkpoint_392_tffc2_directline/checkpoint-392"
 # load_path = "checkpoint_792/checkpoint-792"
 # load_path = "checkpoint_912_a2/checkpoint-912"

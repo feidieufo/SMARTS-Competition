@@ -152,6 +152,7 @@ class RLlibTorchMultiPolicy(AgentPolicy):
         from utils.fc_model import FCMultiLayerNetwork
         ModelCatalog.register_custom_model("my_fc", FCMultiLayerNetwork)
         config = ray.rllib.agents.ppo.ppo.DEFAULT_CONFIG.copy()
+        config["vf_share_layers"] = True
         config['num_workers'] = 0
         config["model"]["custom_model"] = "my_fc"
         config['model']['free_log_std'] = False

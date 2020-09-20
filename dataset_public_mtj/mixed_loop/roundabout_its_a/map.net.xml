@@ -1,0 +1,388 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- generated on 2020年08月10日 星期一 17时20分57秒 by Eclipse SUMO netedit Version 1.6.0
+<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/netconvertConfiguration.xsd">
+
+    <input>
+        <sumo-net-file value="/home/illion/workspace/projects/ming/SMARTS/dai/track1/dataset_evaluation/mixed_loop/roundabout_its_a/map.net.xml"/>
+    </input>
+
+    <output>
+        <output-file value="/home/illion/workspace/projects/ming/SMARTS/dai/track1/dataset_evaluation/mixed_loop/roundabout_its_a2/map.net.xml"/>
+    </output>
+
+    <processing>
+        <geometry.min-radius.fix.railways value="false"/>
+        <geometry.max-grade.fix value="false"/>
+        <offset.disable-normalization value="true"/>
+        <lefthand value="false"/>
+    </processing>
+
+    <junctions>
+        <no-turnarounds value="true"/>
+        <junctions.corner-detail value="5"/>
+        <junctions.limit-turn-speed value="5.5"/>
+        <rectangular-lane-cut value="false"/>
+    </junctions>
+
+    <pedestrian>
+        <walkingareas value="false"/>
+    </pedestrian>
+
+    <report>
+        <aggregate-warnings value="5"/>
+    </report>
+
+</configuration>
+-->
+
+<net version="1.6" junctionCornerDetail="5" limitTurnSpeed="5.50" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/net_file.xsd">
+
+    <location netOffset="-773483.17,-42354.99" convBoundary="-43.73,20.50,268.04,201.70" origBoundary="-174.542980,0.382844,-174.541564,0.384115" projParameter="+proj=utm +zone=1 +ellps=WGS84 +datum=WGS84 +units=m +no_defs"/>
+
+    <type id="highway.bridleway" priority="1" numLanes="1" speed="2.78" allow="pedestrian" oneway="1" width="2.00"/>
+    <type id="highway.bus_guideway" priority="1" numLanes="1" speed="27.78" allow="bus" oneway="1"/>
+    <type id="highway.cycleway" priority="1" numLanes="1" speed="8.33" allow="bicycle" oneway="0" width="1.00"/>
+    <type id="highway.footway" priority="1" numLanes="1" speed="2.78" allow="pedestrian" oneway="1" width="2.00"/>
+    <type id="highway.ford" priority="1" numLanes="1" speed="2.78" allow="army" oneway="0"/>
+    <type id="highway.living_street" priority="2" numLanes="1" speed="2.78" disallow="tram rail_urban rail rail_electric ship" oneway="0"/>
+    <type id="highway.motorway" priority="14" numLanes="2" speed="39.44" allow="private emergency authority army vip passenger hov taxi bus coach delivery truck trailer motorcycle evehicle custom1 custom2" oneway="1"/>
+    <type id="highway.motorway_link" priority="9" numLanes="1" speed="22.22" allow="private emergency authority army vip passenger hov taxi bus coach delivery truck trailer motorcycle evehicle custom1 custom2" oneway="1"/>
+    <type id="highway.path" priority="1" numLanes="1" speed="2.78" allow="pedestrian bicycle" oneway="1" width="2.00"/>
+    <type id="highway.pedestrian" priority="1" numLanes="1" speed="2.78" allow="pedestrian" oneway="1" width="2.00"/>
+    <type id="highway.primary" priority="12" numLanes="2" speed="27.78" disallow="tram rail_urban rail rail_electric ship" oneway="0"/>
+    <type id="highway.primary_link" priority="7" numLanes="1" speed="22.22" disallow="tram rail_urban rail rail_electric ship" oneway="0"/>
+    <type id="highway.raceway" priority="15" numLanes="2" speed="83.33" allow="vip" oneway="0"/>
+    <type id="highway.residential" priority="3" numLanes="1" speed="13.89" disallow="tram rail_urban rail rail_electric ship" oneway="0"/>
+    <type id="highway.secondary" priority="11" numLanes="2" speed="27.78" disallow="tram rail_urban rail rail_electric ship" oneway="0"/>
+    <type id="highway.secondary_link" priority="6" numLanes="1" speed="22.22" disallow="tram rail_urban rail rail_electric ship" oneway="0"/>
+    <type id="highway.service" priority="1" numLanes="1" speed="5.56" allow="pedestrian delivery bicycle" oneway="0"/>
+    <type id="highway.stairs" priority="1" numLanes="1" speed="1.39" allow="pedestrian" oneway="1" width="2.00"/>
+    <type id="highway.step" priority="1" numLanes="1" speed="1.39" allow="pedestrian" oneway="1" width="2.00"/>
+    <type id="highway.steps" priority="1" numLanes="1" speed="1.39" allow="pedestrian" oneway="1" width="2.00"/>
+    <type id="highway.tertiary" priority="10" numLanes="1" speed="22.22" disallow="tram rail_urban rail rail_electric ship" oneway="0"/>
+    <type id="highway.tertiary_link" priority="5" numLanes="1" speed="22.22" disallow="tram rail_urban rail rail_electric ship" oneway="0"/>
+    <type id="highway.track" priority="1" numLanes="1" speed="5.56" disallow="tram rail_urban rail rail_electric ship" oneway="0"/>
+    <type id="highway.trunk" priority="13" numLanes="2" speed="27.78" disallow="pedestrian bicycle tram rail_urban rail rail_electric ship" oneway="0"/>
+    <type id="highway.trunk_link" priority="8" numLanes="1" speed="22.22" disallow="pedestrian bicycle tram rail_urban rail rail_electric ship" oneway="0"/>
+    <type id="highway.unclassified" priority="4" numLanes="1" speed="13.89" disallow="tram rail_urban rail rail_electric ship" oneway="0"/>
+    <type id="highway.unsurfaced" priority="1" numLanes="1" speed="8.33" disallow="tram rail_urban rail rail_electric ship" oneway="0"/>
+    <type id="railway.light_rail" priority="19" numLanes="1" speed="27.78" allow="rail_urban" oneway="1"/>
+    <type id="railway.preserved" priority="16" numLanes="1" speed="27.78" allow="rail" oneway="1"/>
+    <type id="railway.rail" priority="20" numLanes="1" speed="83.33" allow="rail rail_electric" oneway="1"/>
+    <type id="railway.subway" priority="18" numLanes="1" speed="27.78" allow="rail_urban" oneway="1"/>
+    <type id="railway.tram" priority="17" numLanes="1" speed="13.89" allow="tram" oneway="1"/>
+
+    <edge id=":gneJ106_0" function="internal">
+        <lane id=":gneJ106_0_0" index="0" speed="7.42" length="1.79" shape="259.71,21.82 260.39,22.22 260.83,22.55 261.17,22.98 261.57,23.67"/>
+        <lane id=":gneJ106_0_1" index="1" speed="13.89" length="1.79" shape="258.16,24.62 258.39,24.75 258.53,24.87 258.65,25.01 258.78,25.24"/>
+    </edge>
+    <edge id=":gneJ107_0" function="internal">
+        <lane id=":gneJ107_0_0" index="0" speed="9.52" length="1.22" shape="264.54,194.05 264.20,194.47 263.94,194.74 263.64,194.96 263.18,195.24"/>
+        <lane id=":gneJ107_0_1" index="1" speed="13.89" length="1.22" shape="262.01,192.08 261.90,192.22 261.82,192.31 261.72,192.39 261.56,192.48"/>
+    </edge>
+    <edge id=":gneJ108_0" function="internal">
+        <lane id=":gneJ108_0_0" index="0" speed="8.86" length="1.97" shape="-36.67,200.57 -37.19,200.32 -37.54,200.11 -37.84,199.84 -38.23,199.41"/>
+    </edge>
+    <edge id=":gneJ108_1" function="internal">
+        <lane id=":gneJ108_1_0" index="0" speed="13.89" length="0.66" shape="-35.85,197.28 -35.72,197.42 -35.62,197.51 -35.50,197.58 -35.33,197.66"/>
+    </edge>
+    <edge id=":gneJ109_0" function="internal">
+        <lane id=":gneJ109_0_0" index="0" speed="4.25" length="1.23" shape="-35.92,72.50 -36.28,72.51 -36.53,72.57 -36.75,72.70 -37.02,72.94"/>
+    </edge>
+    <edge id=":gneJ109_1" function="internal">
+        <lane id=":gneJ109_1_0" index="0" speed="6.74" length="3.69" shape="-39.21,70.60 -38.40,69.89 -37.74,69.50 -37.00,69.33 -35.91,69.30"/>
+    </edge>
+    <edge id=":gneJ110_0" function="internal">
+        <lane id=":gneJ110_0_0" index="0" speed="13.89" length="14.35" shape="82.97,201.62 68.62,201.77"/>
+    </edge>
+    <edge id=":gneJ110_1" function="internal">
+        <lane id=":gneJ110_1_0" index="0" speed="8.00" length="5.87" shape="82.97,201.62 79.11,201.09 77.41,200.08"/>
+    </edge>
+    <edge id=":gneJ110_6" function="internal">
+        <lane id=":gneJ110_6_0" index="0" speed="8.00" length="8.33" shape="77.41,200.08 76.35,199.45 74.69,196.71 74.13,192.86"/>
+    </edge>
+    <edge id=":gneJ110_2" function="internal">
+        <lane id=":gneJ110_2_0" index="0" speed="6.50" length="9.03" shape="77.33,192.85 77.69,195.30 78.74,197.04 80.50,198.09 82.95,198.42"/>
+    </edge>
+    <edge id=":gneJ110_3" function="internal">
+        <lane id=":gneJ110_3_0" index="0" speed="8.04" length="14.18" shape="77.33,192.85 76.79,196.70 75.16,199.47 72.44,201.16 68.62,201.77"/>
+    </edge>
+    <edge id=":gneJ110_4" function="internal">
+        <lane id=":gneJ110_4_0" index="0" speed="6.55" length="9.07" shape="68.57,198.57 71.01,198.18 72.75,197.10 73.79,195.33 74.13,192.86"/>
+    </edge>
+    <edge id=":gneJ110_5" function="internal">
+        <lane id=":gneJ110_5_0" index="0" speed="13.89" length="14.38" shape="68.57,198.57 82.95,198.42"/>
+    </edge>
+    <edge id=":gneJ77_0" function="internal">
+        <lane id=":gneJ77_0_0" index="0" speed="13.89" length="14.54" shape="176.65,200.94 162.11,201.23"/>
+    </edge>
+    <edge id=":gneJ77_1" function="internal">
+        <lane id=":gneJ77_1_0" index="0" speed="7.28" length="8.37" shape="176.54,197.74 172.67,197.52 169.90,196.54 168.81,195.42"/>
+    </edge>
+    <edge id=":gneJ77_4" function="internal">
+        <lane id=":gneJ77_4_0" index="0" speed="7.28" length="3.40" shape="168.81,195.42 168.22,194.81 167.64,192.33"/>
+    </edge>
+    <edge id=":gneJ77_2" function="internal">
+        <lane id=":gneJ77_2_0" index="0" speed="8.00" length="14.26" shape="170.84,192.30 170.33,196.19 168.71,198.97 165.97,200.65 162.11,201.23"/>
+    </edge>
+    <edge id=":gneJ77_3" function="internal">
+        <lane id=":gneJ77_3_0" index="0" speed="6.51" length="9.08" shape="162.09,198.03 164.54,197.66 166.28,196.59 167.32,194.81 167.64,192.33"/>
+    </edge>
+    <edge id=":gneJ99_0" function="internal">
+        <lane id=":gneJ99_0_0" index="0" speed="13.89" length="0.80" shape="163.28,77.15 163.17,76.95 163.08,76.81 162.96,76.70 162.76,76.56"/>
+    </edge>
+    <edge id=":gneJ99_1" function="internal">
+        <lane id=":gneJ99_1_0" index="0" speed="7.81" length="2.39" shape="164.59,73.93 165.16,74.35 165.52,74.68 165.80,75.08 166.13,75.71"/>
+    </edge>
+    <edge id=":junction-intersection-east_0" function="internal">
+        <lane id=":junction-intersection-east_0_0" index="0" disallow="tram rail_urban rail rail_electric rail_fast ship" speed="6.63" length="8.75" shape="129.42,73.37 127.05,73.72 125.30,74.72 124.16,76.36 123.63,78.64"/>
+    </edge>
+    <edge id=":junction-intersection-east_1" function="internal">
+        <lane id=":junction-intersection-east_1_0" index="0" disallow="tram rail_urban rail rail_electric rail_fast ship" speed="6.52" length="8.66" shape="123.74,64.95 124.23,67.25 125.33,68.89 127.05,69.87 129.38,70.17"/>
+    </edge>
+    <edge id=":junction-intersection-east_2" function="internal">
+        <lane id=":junction-intersection-east_2_0" index="0" disallow="tram rail_urban rail rail_electric rail_fast ship" speed="27.78" length="13.48" shape="123.74,64.95 124.00,69.01 124.07,71.80 123.96,74.58 123.63,78.64"/>
+        <lane id=":junction-intersection-east_2_1" index="1" disallow="tram rail_urban rail rail_electric rail_fast ship" speed="27.78" length="13.48" shape="120.55,65.16 120.80,69.08 120.87,71.77 120.76,74.46 120.45,78.37"/>
+    </edge>
+    <edge id=":junction-intersection-north_0" function="internal">
+        <lane id=":junction-intersection-north_0_0" index="0" disallow="tram rail_urban rail rail_electric rail_fast ship" speed="6.92" length="9.10" shape="73.94,125.66 73.59,123.33 72.54,121.54 70.81,120.29 68.38,119.58"/>
+    </edge>
+    <edge id=":junction-intersection-north_1" function="internal">
+        <lane id=":junction-intersection-north_1_0" index="0" disallow="tram rail_urban rail rail_electric rail_fast ship" speed="6.90" length="9.22" shape="82.70,119.47 80.26,120.15 78.52,121.40 77.48,123.24 77.14,125.65"/>
+    </edge>
+    <edge id=":junction-intersection-north_2" function="internal">
+        <lane id=":junction-intersection-north_2_0" index="0" disallow="tram rail_urban rail rail_electric rail_fast ship" speed="27.78" length="14.41" shape="82.70,119.47 78.47,120.06 75.53,120.32 72.60,120.17 68.38,119.58"/>
+        <lane id=":junction-intersection-north_2_1" index="1" disallow="tram rail_urban rail rail_electric rail_fast ship" speed="27.78" length="14.41" shape="82.72,116.23 78.49,116.83 75.56,117.08 72.63,116.94 68.41,116.35"/>
+    </edge>
+    <edge id=":junction-intersection-south_0" function="internal">
+        <lane id=":junction-intersection-south_0_0" index="0" disallow="tram rail_urban rail rail_electric rail_fast ship" speed="20.84" length="26.25" shape="74.20,22.84 100.33,22.30"/>
+        <lane id=":junction-intersection-south_0_1" index="1" disallow="tram rail_urban rail rail_electric rail_fast ship" speed="20.84" length="26.25" shape="74.20,22.84 81.11,23.32 87.31,24.28 93.50,25.19 100.41,25.50"/>
+    </edge>
+    <edge id=":junction-intersection-south_2" function="internal">
+        <lane id=":junction-intersection-south_2_0" index="0" disallow="tram rail_urban rail rail_electric rail_fast ship" speed="21.31" length="27.24" shape="74.20,22.84 81.32,23.12 87.86,24.10 94.06,26.12 100.18,29.55"/>
+        <lane id=":junction-intersection-south_2_1" index="1" disallow="tram rail_urban rail rail_electric rail_fast ship" speed="21.29" length="27.24" shape="74.18,26.04 81.27,26.41 87.73,27.56 93.86,29.77 99.96,33.28"/>
+    </edge>
+    <edge id=":junction-intersection-west_0" function="internal">
+        <lane id=":junction-intersection-west_0_0" index="0" disallow="tram rail_urban rail rail_electric rail_fast ship" speed="6.52" length="8.59" shape="26.56,77.87 26.08,75.59 24.99,73.96 23.30,72.97 20.99,72.64"/>
+    </edge>
+    <edge id=":junction-intersection-west_1" function="internal">
+        <lane id=":junction-intersection-west_1_0" index="0" disallow="tram rail_urban rail rail_electric rail_fast ship" speed="27.78" length="13.38" shape="26.56,77.87 26.31,73.83 26.23,71.07 26.35,68.30 26.68,64.27"/>
+        <lane id=":junction-intersection-west_1_1" index="1" disallow="tram rail_urban rail rail_electric rail_fast ship" speed="27.78" length="13.38" shape="29.76,77.66 29.51,73.76 29.44,71.09 29.55,68.42 29.86,64.54"/>
+    </edge>
+    <edge id=":junction-intersection-west_3" function="internal">
+        <lane id=":junction-intersection-west_3_0" index="0" disallow="tram rail_urban rail rail_electric rail_fast ship" speed="6.56" length="8.61" shape="21.00,69.44 23.32,69.12 25.04,68.16 26.16,66.54 26.68,64.27"/>
+    </edge>
+
+    <edge id="-gneE81" from="gneJ99" to="junction-intersection-east" priority="-1" shape="164.34,75.71 159.80,72.56 156.54,71.51 122.60,71.84">
+        <lane id="-gneE81_0" index="0" speed="13.89" length="34.29" shape="162.76,76.56 159.08,74.01 156.30,73.11 129.42,73.37"/>
+    </edge>
+    <edge id="-gneE82" from="gneJ77" to="gneJ99" priority="-1" shape="169.32,199.59 168.06,84.69 167.12,81.19 164.34,75.71">
+        <lane id="-gneE82_0" index="0" speed="13.89" length="115.85" shape="167.64,192.33 166.46,84.91 165.62,81.77 163.28,77.15"/>
+    </edge>
+    <edge id="-gneE91" from="gneJ109" to="gneJ108" priority="-1" shape="-37.19,70.90 -41.29,74.75 -42.65,77.15 -43.73,80.32 -42.39,188.78 -41.55,192.15 -40.32,194.69 -36.60,198.84">
+        <lane id="-gneE91_0" index="0" speed="13.89" length="127.64" shape="-37.02,72.94 -40.02,75.75 -41.18,77.81 -42.13,80.58 -40.79,188.57 -40.04,191.60 -38.98,193.79 -35.85,197.28"/>
+    </edge>
+    <edge id="-gneE92" from="junction-intersection-west" to="gneJ109" priority="-1">
+        <lane id="-gneE92_0" index="0" speed="13.89" length="56.91" shape="20.99,72.64 -35.92,72.50"/>
+    </edge>
+    <edge id="-gneE93" from="gneJ110" to="gneJ77" priority="-1">
+        <lane id="-gneE93_0" index="0" speed="13.89" length="79.15" shape="82.95,198.42 162.09,198.03"/>
+    </edge>
+    <edge id="-gneE94" from="gneJ108" to="gneJ110" priority="-1" shape="-36.60,198.84 -32.50,200.73 -30.63,201.33 -28.46,201.70 75.75,200.06">
+        <lane id="-gneE94_0" index="0" speed="13.89" length="104.36" shape="-35.33,197.66 -31.92,199.24 -30.25,199.77 -28.34,200.10 68.57,198.57"/>
+    </edge>
+    <edge id="-gneE95" from="gneJ110" to="junction-intersection-north" priority="-1">
+        <lane id="-gneE95_0" index="0" speed="13.89" length="67.20" shape="74.13,192.86 73.94,125.66"/>
+    </edge>
+    <edge id="edge-east-EN" from="junction-intersection-east" to="junction-intersection-north" priority="11" type="highway.secondary" spreadType="center" shape="122.60,71.84 122.01,78.86 120.38,85.71 117.73,92.25 114.13,98.32 109.67,103.79 104.43,108.54 98.54,112.46 92.12,115.46 85.33,117.48 78.31,118.47 75.52,118.45">
+        <lane id="edge-east-EN_0" index="0" disallow="tram rail_urban rail rail_electric rail_fast ship" speed="27.78" length="59.53" shape="123.63,78.64 123.59,79.11 121.91,86.20 119.17,92.96 115.45,99.24 110.83,104.89 105.42,109.81 99.33,113.86 92.69,116.96 85.67,119.05 82.70,119.47"/>
+        <lane id="edge-east-EN_1" index="1" disallow="tram rail_urban rail rail_electric rail_fast ship" speed="27.78" length="59.53" shape="120.45,78.37 120.43,78.61 118.85,85.22 116.29,91.54 112.81,97.40 108.51,102.69 103.44,107.27 97.75,111.06 91.55,113.96 84.99,115.91 82.72,116.23"/>
+    </edge>
+    <edge id="edge-north-NW" from="junction-intersection-north" to="junction-intersection-west" priority="11" type="highway.secondary" spreadType="center" shape="75.52,118.45 71.22,118.41 64.21,117.31 57.45,115.17 51.09,112.07 45.26,108.05 40.11,103.22 35.73,97.67 32.24,91.54 29.70,84.97 28.18,78.08 27.71,71.06">
+        <lane id="edge-north-NW_0" index="0" disallow="tram rail_urban rail rail_electric rail_fast ship" speed="27.78" length="61.08" shape="68.38,119.58 63.84,118.87 56.85,116.66 50.28,113.46 44.25,109.30 38.93,104.31 34.40,98.57 30.79,92.23 28.16,85.43 26.59,78.31 26.56,77.87"/>
+        <lane id="edge-north-NW_1" index="1" disallow="tram rail_urban rail rail_electric rail_fast ship" speed="27.78" length="61.08" shape="68.41,116.35 64.58,115.75 58.05,113.68 51.90,110.68 46.27,106.80 41.29,102.13 37.06,96.77 33.69,90.85 31.24,84.51 29.77,77.85 29.76,77.66"/>
+    </edge>
+    <edge id="edge-south-SE" from="junction-intersection-south" to="junction-intersection-east" priority="11" type="highway.secondary" spreadType="center" shape="75.74,24.45 79.09,24.48 86.09,25.59 92.85,27.72 99.22,30.83 105.04,34.84 110.20,39.68 114.58,45.22 118.07,51.35 120.61,57.93 122.13,64.81 122.60,71.84">
+        <lane id="edge-south-SE_0" index="0" disallow="tram rail_urban rail rail_electric rail_fast ship" speed="27.78" length="41.57" shape="100.18,29.55 106.05,33.59 111.38,38.59 115.91,44.32 119.52,50.66 122.15,57.47 123.72,64.58 123.74,64.95"/>
+        <lane id="edge-south-SE_1" index="1" disallow="tram rail_urban rail rail_electric rail_fast ship" speed="27.78" length="41.57" shape="99.96,33.28 104.03,36.09 109.02,40.77 113.25,46.12 116.62,52.04 119.07,58.39 120.54,65.04 120.55,65.16"/>
+    </edge>
+    <edge id="edge-west-WS" from="junction-intersection-west" to="junction-intersection-south" priority="11" type="highway.secondary" spreadType="center" shape="27.71,71.06 28.30,64.04 29.93,57.18 32.58,50.65 36.17,44.58 40.64,39.11 45.88,34.36 51.77,30.44 58.19,27.43 64.98,25.41 72.00,24.42 75.74,24.45">
+        <lane id="edge-west-WS_0" index="0" disallow="tram rail_urban rail rail_electric rail_fast ship" speed="27.78" length="66.18" shape="26.68,64.27 26.72,63.79 28.40,56.69 31.14,49.94 34.85,43.66 39.48,38.00 44.89,33.09 50.98,29.04 57.62,25.93 64.64,23.84 71.89,22.82 74.20,22.84"/>
+        <lane id="edge-west-WS_1" index="1" disallow="tram rail_urban rail rail_electric rail_fast ship" speed="27.78" length="66.18" shape="29.86,64.54 29.88,64.29 31.46,57.67 34.02,51.36 37.49,45.50 41.80,40.22 46.87,35.63 52.56,31.84 58.76,28.93 65.32,26.98 72.11,26.02 74.18,26.04"/>
+    </edge>
+    <edge id="gneE81" from="junction-intersection-east" to="gneJ99" priority="-1" shape="122.60,71.84 156.54,71.51 159.80,72.56 164.34,75.71">
+        <lane id="gneE81_0" index="0" speed="13.89" length="36.28" shape="129.38,70.17 156.78,69.91 160.52,71.11 164.59,73.93"/>
+    </edge>
+    <edge id="gneE82" from="gneJ99" to="gneJ77" priority="-1" shape="164.34,75.71 167.12,81.19 168.06,84.69 169.32,199.59">
+        <lane id="gneE82_0" index="0" speed="13.89" length="117.33" shape="166.13,75.71 168.62,80.61 169.66,84.47 170.84,192.30"/>
+    </edge>
+    <edge id="gneE91" from="gneJ108" to="gneJ109" priority="-1" shape="-36.60,198.84 -40.32,194.69 -41.55,192.15 -42.39,188.78 -43.73,80.32 -42.65,77.15 -41.29,74.75 -37.19,70.90">
+        <lane id="gneE91_0" index="0" speed="13.89" length="132.63" shape="-38.23,199.41 -41.66,195.59 -43.06,192.70 -43.99,188.99 -45.33,80.06 -44.12,76.49 -42.56,73.75 -39.21,70.60"/>
+    </edge>
+    <edge id="gneE92" from="gneJ109" to="junction-intersection-west" priority="-1">
+        <lane id="gneE92_0" index="0" speed="13.89" length="56.91" shape="-35.91,69.30 21.00,69.44"/>
+    </edge>
+    <edge id="gneE93" from="gneJ77" to="gneJ110" priority="-1">
+        <lane id="gneE93_0" index="0" speed="13.89" length="79.15" shape="162.11,201.23 82.97,201.62"/>
+    </edge>
+    <edge id="gneE94" from="gneJ110" to="gneJ108" priority="-1" shape="75.75,200.06 -28.46,201.70 -30.63,201.33 -32.50,200.73 -36.60,198.84">
+        <lane id="gneE94_0" index="0" speed="13.89" length="105.80" shape="68.62,201.77 -28.58,203.30 -31.01,202.89 -33.08,202.22 -36.67,200.57"/>
+    </edge>
+    <edge id="gneE95" from="junction-intersection-north" to="gneJ110" priority="-1">
+        <lane id="gneE95_0" index="0" speed="13.89" length="67.20" shape="77.14,125.65 77.33,192.85"/>
+    </edge>
+    <edge id="gneE96" from="junction-intersection-south" to="gneJ106" priority="-1" spreadType="center" shape="75.74,24.45 252.69,20.50 255.44,21.29 259.73,23.66">
+        <lane id="gneE96_0" index="0" speed="13.89" length="159.21" shape="100.33,22.30 252.90,18.89 256.06,19.80 259.71,21.82"/>
+        <lane id="gneE96_1" index="1" speed="13.89" length="159.21" shape="100.41,25.50 252.48,22.11 254.82,22.78 258.16,24.62"/>
+    </edge>
+    <edge id="gneE97" from="gneJ106" to="gneJ107" priority="-1" spreadType="center" shape="259.73,23.66 262.62,28.79 263.57,32.02 264.10,34.84 268.04,184.11 267.21,186.74 265.70,189.96 262.90,193.55">
+        <lane id="gneE97_0" index="0" speed="13.89" length="170.79" shape="261.57,23.67 264.10,28.16 265.13,31.65 265.70,34.67 269.65,184.34 268.70,187.32 267.07,190.80 264.54,194.05"/>
+        <lane id="gneE97_1" index="1" speed="13.89" length="170.79" shape="258.78,25.24 261.14,29.42 262.01,32.39 262.50,35.01 266.43,183.88 265.72,186.16 264.33,189.12 262.01,192.08"/>
+    </edge>
+    <edge id="gneE98" from="gneJ107" to="gneJ77" priority="-1" spreadType="center" shape="262.90,193.55 259.20,195.72 255.79,196.60 169.32,199.59">
+        <lane id="gneE98_0" index="0" speed="13.89" length="86.44" shape="263.18,195.24 259.82,197.21 256.02,198.19 176.65,200.94"/>
+        <lane id="gneE98_1" index="1" speed="13.89" length="86.44" shape="261.56,192.48 258.58,194.23 255.56,195.01 176.54,197.74"/>
+    </edge>
+
+    <junction id="gneJ106" type="priority" x="259.73" y="23.66" incLanes="gneE96_0 gneE96_1" intLanes=":gneJ106_0_0 :gneJ106_0_1" shape="257.39,26.02 262.96,22.88 262.28,21.75 261.98,21.40 261.61,21.10 261.14,20.79 260.48,20.42">
+        <request index="0" response="00" foes="00" cont="0"/>
+        <request index="1" response="00" foes="00" cont="0"/>
+    </junction>
+    <junction id="gneJ107" type="priority" x="262.90" y="193.55" incLanes="gneE97_0 gneE97_1" intLanes=":gneJ107_0_0 :gneJ107_0_1" shape="265.80,195.04 260.75,191.10 263.99,196.62 264.76,196.15 265.01,195.96 265.23,195.73 265.48,195.44">
+        <request index="0" response="00" foes="00" cont="0"/>
+        <request index="1" response="00" foes="00" cont="0"/>
+    </junction>
+    <junction id="gneJ108" type="priority" x="-36.60" y="198.84" incLanes="gneE94_0 -gneE91_0" intLanes=":gneJ108_0_0 :gneJ108_1_0" shape="-37.34,202.02 -34.66,196.21 -39.42,200.48 -38.76,201.19 -38.50,201.41 -38.21,201.60 -37.84,201.79">
+        <request index="0" response="00" foes="00" cont="0"/>
+        <request index="1" response="00" foes="00" cont="0"/>
+    </junction>
+    <junction id="gneJ109" type="priority" x="-37.19" y="70.90" incLanes="-gneE92_0 gneE91_0" intLanes=":gneJ109_0_0 :gneJ109_1_0" shape="-35.93,74.10 -35.91,67.70 -37.72,67.79 -38.35,67.96 -38.93,68.27 -39.55,68.75 -40.31,69.44">
+        <request index="0" response="00" foes="00" cont="0"/>
+        <request index="1" response="00" foes="00" cont="0"/>
+    </junction>
+    <junction id="gneJ110" type="priority" x="75.75" y="200.06" incLanes="gneE93_0 gneE95_0 -gneE94_0" intLanes=":gneJ110_0_0 :gneJ110_6_0 :gneJ110_2_0 :gneJ110_3_0 :gneJ110_4_0 :gneJ110_5_0" shape="82.97,203.22 82.94,196.82 80.72,196.39 79.94,195.84 79.38,195.06 79.04,194.07 78.93,192.84 72.53,192.86 72.09,195.12 71.54,195.91 70.76,196.49 69.76,196.84 68.54,196.97 68.64,203.37">
+        <request index="0" response="000000" foes="001000" cont="0"/>
+        <request index="1" response="110000" foes="111000" cont="1"/>
+        <request index="2" response="100000" foes="100000" cont="0"/>
+        <request index="3" response="100011" foes="100011" cont="0"/>
+        <request index="4" response="000000" foes="000010" cont="0"/>
+        <request index="5" response="000000" foes="001110" cont="0"/>
+    </junction>
+    <junction id="gneJ77" type="priority" x="169.32" y="199.59" incLanes="gneE98_0 gneE98_1 gneE82_0 -gneE93_0" intLanes=":gneJ77_0_0 :gneJ77_4_0 :gneJ77_2_0 :gneJ77_3_0" shape="176.70,202.54 176.48,196.14 174.26,195.77 173.47,195.24 172.91,194.49 172.56,193.50 172.44,192.28 166.04,192.35 165.62,194.61 165.07,195.40 164.30,195.96 163.31,196.31 162.08,196.43 162.12,202.83">
+        <request index="0" response="0000" foes="0100" cont="0"/>
+        <request index="1" response="1000" foes="1100" cont="1"/>
+        <request index="2" response="0011" foes="0011" cont="0"/>
+        <request index="3" response="0000" foes="0010" cont="0"/>
+    </junction>
+    <junction id="gneJ99" type="priority" x="164.34" y="75.71" incLanes="-gneE82_0 gneE81_0" intLanes=":gneJ99_0_0 :gneJ99_1_0" shape="161.85,77.88 167.56,74.98 167.00,73.95 166.75,73.61 166.45,73.32 166.05,73.01 165.50,72.62">
+        <request index="0" response="00" foes="00" cont="0"/>
+        <request index="1" response="00" foes="00" cont="0"/>
+    </junction>
+    <junction id="junction-intersection-east" type="priority" x="122.60" y="71.84" incLanes="-gneE81_0 edge-south-SE_0 edge-south-SE_1" intLanes=":junction-intersection-east_0_0 :junction-intersection-east_1_0 :junction-intersection-east_2_0 :junction-intersection-east_2_1" shape="129.43,74.97 129.37,68.57 127.24,68.18 126.47,67.66 125.90,66.93 125.52,65.99 125.34,64.84 118.95,65.27 119.47,67.98 119.67,70.01 119.63,71.70 119.43,73.41 119.14,75.47 118.85,78.24 125.23,78.78 125.84,76.68 126.44,75.94 127.24,75.41 128.24,75.09">
+        <request index="0" response="0100" foes="0100" cont="0"/>
+        <request index="1" response="0000" foes="0000" cont="0"/>
+        <request index="2" response="0000" foes="0001" cont="0"/>
+        <request index="3" response="0000" foes="0000" cont="0"/>
+    </junction>
+    <junction id="junction-intersection-north" type="priority" x="75.52" y="118.45" incLanes="-gneE95_0 edge-east-EN_0 edge-east-EN_1" intLanes=":junction-intersection-north_0_0 :junction-intersection-north_1_0 :junction-intersection-north_2_0 :junction-intersection-north_2_1" shape="72.34,125.66 78.74,125.64 79.17,123.36 79.72,122.50 80.49,121.84 81.48,121.37 82.69,121.08 82.73,114.61 79.70,115.05 77.44,115.34 75.57,115.46 73.70,115.42 71.45,115.18 68.43,114.73 68.36,121.20 70.57,121.97 71.34,122.63 71.89,123.46 72.23,124.47">
+        <request index="0" response="0100" foes="0100" cont="0"/>
+        <request index="1" response="0000" foes="0000" cont="0"/>
+        <request index="2" response="0000" foes="0001" cont="0"/>
+        <request index="3" response="0000" foes="0000" cont="0"/>
+    </junction>
+    <junction id="junction-intersection-south" type="priority" x="75.74" y="24.45" incLanes="edge-west-WS_0 edge-west-WS_1" intLanes=":junction-intersection-south_0_0 :junction-intersection-south_0_1 :junction-intersection-south_2_0 :junction-intersection-south_2_1" shape="99.84,35.14 100.29,27.79 100.44,27.10 100.30,20.70 74.22,21.24 74.17,27.64 79.95,27.70 84.32,27.95 87.89,28.59 91.26,29.85 95.04,31.96">
+        <request index="0" response="0000" foes="0000" cont="0"/>
+        <request index="1" response="0000" foes="0000" cont="0"/>
+        <request index="2" response="0000" foes="0000" cont="0"/>
+        <request index="3" response="0000" foes="0000" cont="0"/>
+    </junction>
+    <junction id="junction-intersection-west" type="priority" x="27.71" y="71.06" incLanes="edge-north-NW_0 edge-north-NW_1 gneE92_0" intLanes=":junction-intersection-west_0_0 :junction-intersection-west_1_0 :junction-intersection-west_1_1 :junction-intersection-west_3_0" shape="24.97,77.98 31.35,77.55 30.84,74.92 30.64,72.89 30.68,71.20 30.88,69.49 31.17,67.43 31.46,64.67 25.08,64.13 24.49,66.20 23.90,66.92 23.13,67.44 22.16,67.74 21.00,67.84 20.98,74.24 23.09,74.66 23.85,75.18 24.41,75.91 24.79,76.84">
+        <request index="0" response="0000" foes="0000" cont="0"/>
+        <request index="1" response="0000" foes="1000" cont="0"/>
+        <request index="2" response="0000" foes="0000" cont="0"/>
+        <request index="3" response="0010" foes="0010" cont="0"/>
+    </junction>
+
+    <junction id=":gneJ110_6_0" type="internal" x="77.41" y="200.08" incLanes=":gneJ110_1_0 -gneE94_0" intLanes=":gneJ110_3_0 :gneJ110_4_0 :gneJ110_5_0"/>
+    <junction id=":gneJ77_4_0" type="internal" x="168.81" y="195.42" incLanes=":gneJ77_1_0 -gneE93_0" intLanes=":gneJ77_2_0 :gneJ77_3_0"/>
+
+    <connection from="-gneE81" to="edge-east-EN" fromLane="0" toLane="0" via=":junction-intersection-east_0_0" dir="r" state="m"/>
+    <connection from="-gneE82" to="-gneE81" fromLane="0" toLane="0" via=":gneJ99_0_0" dir="s" state="M"/>
+    <connection from="-gneE91" to="-gneE94" fromLane="0" toLane="0" via=":gneJ108_1_0" dir="s" state="M"/>
+    <connection from="-gneE92" to="-gneE91" fromLane="0" toLane="0" via=":gneJ109_0_0" dir="s" state="M"/>
+    <connection from="-gneE93" to="-gneE82" fromLane="0" toLane="0" via=":gneJ77_3_0" dir="r" state="M"/>
+    <connection from="-gneE94" to="-gneE95" fromLane="0" toLane="0" via=":gneJ110_4_0" dir="r" state="M"/>
+    <connection from="-gneE94" to="-gneE93" fromLane="0" toLane="0" via=":gneJ110_5_0" dir="s" state="M"/>
+    <connection from="-gneE95" to="edge-north-NW" fromLane="0" toLane="0" via=":junction-intersection-north_0_0" dir="r" state="m"/>
+    <connection from="edge-east-EN" to="gneE95" fromLane="0" toLane="0" via=":junction-intersection-north_1_0" dir="r" state="M"/>
+    <connection from="edge-east-EN" to="edge-north-NW" fromLane="0" toLane="0" via=":junction-intersection-north_2_0" dir="s" state="M"/>
+    <connection from="edge-east-EN" to="edge-north-NW" fromLane="1" toLane="1" via=":junction-intersection-north_2_1" dir="s" state="M"/>
+    <connection from="edge-north-NW" to="-gneE92" fromLane="0" toLane="0" via=":junction-intersection-west_0_0" dir="r" state="M"/>
+    <connection from="edge-north-NW" to="edge-west-WS" fromLane="0" toLane="0" via=":junction-intersection-west_1_0" dir="s" state="M"/>
+    <connection from="edge-north-NW" to="edge-west-WS" fromLane="1" toLane="1" via=":junction-intersection-west_1_1" dir="s" state="M"/>
+    <connection from="edge-south-SE" to="gneE81" fromLane="0" toLane="0" via=":junction-intersection-east_1_0" dir="r" state="M"/>
+    <connection from="edge-south-SE" to="edge-east-EN" fromLane="0" toLane="0" via=":junction-intersection-east_2_0" dir="s" state="M"/>
+    <connection from="edge-south-SE" to="edge-east-EN" fromLane="1" toLane="1" via=":junction-intersection-east_2_1" dir="s" state="M"/>
+    <connection from="edge-west-WS" to="gneE96" fromLane="0" toLane="0" via=":junction-intersection-south_0_0" dir="s" state="M"/>
+    <connection from="edge-west-WS" to="gneE96" fromLane="0" toLane="1" via=":junction-intersection-south_0_1" dir="s" state="M"/>
+    <connection from="edge-west-WS" to="edge-south-SE" fromLane="0" toLane="0" via=":junction-intersection-south_2_0" dir="s" state="M"/>
+    <connection from="edge-west-WS" to="edge-south-SE" fromLane="1" toLane="1" via=":junction-intersection-south_2_1" dir="s" state="M"/>
+    <connection from="gneE81" to="gneE82" fromLane="0" toLane="0" via=":gneJ99_1_0" dir="s" state="M"/>
+    <connection from="gneE82" to="gneE93" fromLane="0" toLane="0" via=":gneJ77_2_0" dir="l" state="m"/>
+    <connection from="gneE91" to="gneE92" fromLane="0" toLane="0" via=":gneJ109_1_0" dir="s" state="M"/>
+    <connection from="gneE92" to="edge-west-WS" fromLane="0" toLane="0" via=":junction-intersection-west_3_0" dir="r" state="m"/>
+    <connection from="gneE93" to="gneE94" fromLane="0" toLane="0" via=":gneJ110_0_0" dir="s" state="M"/>
+    <connection from="gneE93" to="-gneE95" fromLane="0" toLane="0" via=":gneJ110_1_0" dir="l" state="m"/>
+    <connection from="gneE94" to="gneE91" fromLane="0" toLane="0" via=":gneJ108_0_0" dir="s" state="M"/>
+    <connection from="gneE95" to="-gneE93" fromLane="0" toLane="0" via=":gneJ110_2_0" dir="r" state="m"/>
+    <connection from="gneE95" to="gneE94" fromLane="0" toLane="0" via=":gneJ110_3_0" dir="l" state="m"/>
+    <connection from="gneE96" to="gneE97" fromLane="0" toLane="0" via=":gneJ106_0_0" dir="s" state="M"/>
+    <connection from="gneE96" to="gneE97" fromLane="1" toLane="1" via=":gneJ106_0_1" dir="s" state="M"/>
+    <connection from="gneE97" to="gneE98" fromLane="0" toLane="0" via=":gneJ107_0_0" dir="s" state="M"/>
+    <connection from="gneE97" to="gneE98" fromLane="1" toLane="1" via=":gneJ107_0_1" dir="s" state="M"/>
+    <connection from="gneE98" to="gneE93" fromLane="0" toLane="0" via=":gneJ77_0_0" dir="s" state="M"/>
+    <connection from="gneE98" to="-gneE82" fromLane="1" toLane="0" via=":gneJ77_1_0" dir="l" state="m"/>
+
+    <connection from=":gneJ106_0" to="gneE97" fromLane="0" toLane="0" dir="s" state="M"/>
+    <connection from=":gneJ106_0" to="gneE97" fromLane="1" toLane="1" dir="s" state="M"/>
+    <connection from=":gneJ107_0" to="gneE98" fromLane="0" toLane="0" dir="s" state="M"/>
+    <connection from=":gneJ107_0" to="gneE98" fromLane="1" toLane="1" dir="s" state="M"/>
+    <connection from=":gneJ108_0" to="gneE91" fromLane="0" toLane="0" dir="s" state="M"/>
+    <connection from=":gneJ108_1" to="-gneE94" fromLane="0" toLane="0" dir="s" state="M"/>
+    <connection from=":gneJ109_0" to="-gneE91" fromLane="0" toLane="0" dir="s" state="M"/>
+    <connection from=":gneJ109_1" to="gneE92" fromLane="0" toLane="0" dir="s" state="M"/>
+    <connection from=":gneJ110_0" to="gneE94" fromLane="0" toLane="0" dir="s" state="M"/>
+    <connection from=":gneJ110_1" to="-gneE95" fromLane="0" toLane="0" via=":gneJ110_6_0" dir="l" state="m"/>
+    <connection from=":gneJ110_6" to="-gneE95" fromLane="0" toLane="0" dir="l" state="M"/>
+    <connection from=":gneJ110_2" to="-gneE93" fromLane="0" toLane="0" dir="r" state="M"/>
+    <connection from=":gneJ110_3" to="gneE94" fromLane="0" toLane="0" dir="l" state="M"/>
+    <connection from=":gneJ110_4" to="-gneE95" fromLane="0" toLane="0" dir="r" state="M"/>
+    <connection from=":gneJ110_5" to="-gneE93" fromLane="0" toLane="0" dir="s" state="M"/>
+    <connection from=":gneJ77_0" to="gneE93" fromLane="0" toLane="0" dir="s" state="M"/>
+    <connection from=":gneJ77_1" to="-gneE82" fromLane="0" toLane="0" via=":gneJ77_4_0" dir="l" state="m"/>
+    <connection from=":gneJ77_4" to="-gneE82" fromLane="0" toLane="0" dir="l" state="M"/>
+    <connection from=":gneJ77_2" to="gneE93" fromLane="0" toLane="0" dir="l" state="M"/>
+    <connection from=":gneJ77_3" to="-gneE82" fromLane="0" toLane="0" dir="r" state="M"/>
+    <connection from=":gneJ99_0" to="-gneE81" fromLane="0" toLane="0" dir="s" state="M"/>
+    <connection from=":gneJ99_1" to="gneE82" fromLane="0" toLane="0" dir="s" state="M"/>
+    <connection from=":junction-intersection-east_0" to="edge-east-EN" fromLane="0" toLane="0" dir="r" state="M"/>
+    <connection from=":junction-intersection-east_1" to="gneE81" fromLane="0" toLane="0" dir="r" state="M"/>
+    <connection from=":junction-intersection-east_2" to="edge-east-EN" fromLane="0" toLane="0" dir="s" state="M"/>
+    <connection from=":junction-intersection-east_2" to="edge-east-EN" fromLane="1" toLane="1" dir="s" state="M"/>
+    <connection from=":junction-intersection-north_0" to="edge-north-NW" fromLane="0" toLane="0" dir="r" state="M"/>
+    <connection from=":junction-intersection-north_1" to="gneE95" fromLane="0" toLane="0" dir="r" state="M"/>
+    <connection from=":junction-intersection-north_2" to="edge-north-NW" fromLane="0" toLane="0" dir="s" state="M"/>
+    <connection from=":junction-intersection-north_2" to="edge-north-NW" fromLane="1" toLane="1" dir="s" state="M"/>
+    <connection from=":junction-intersection-south_0" to="gneE96" fromLane="0" toLane="0" dir="s" state="M"/>
+    <connection from=":junction-intersection-south_0" to="gneE96" fromLane="1" toLane="1" dir="s" state="M"/>
+    <connection from=":junction-intersection-south_2" to="edge-south-SE" fromLane="0" toLane="0" dir="s" state="M"/>
+    <connection from=":junction-intersection-south_2" to="edge-south-SE" fromLane="1" toLane="1" dir="s" state="M"/>
+    <connection from=":junction-intersection-west_0" to="-gneE92" fromLane="0" toLane="0" dir="r" state="M"/>
+    <connection from=":junction-intersection-west_1" to="edge-west-WS" fromLane="0" toLane="0" dir="s" state="M"/>
+    <connection from=":junction-intersection-west_1" to="edge-west-WS" fromLane="1" toLane="1" dir="s" state="M"/>
+    <connection from=":junction-intersection-west_3" to="edge-west-WS" fromLane="0" toLane="0" dir="r" state="M"/>
+
+    <roundabout nodes="junction-intersection-east junction-intersection-north junction-intersection-south junction-intersection-west" edges="edge-east-EN edge-north-NW edge-south-SE edge-west-WS"/>
+
+</net>
