@@ -370,7 +370,7 @@ class FCMultiLayerNetwork(TorchModelV2, nn.Module):
                     torch.nn.Sequential(
                         torch.nn.Linear(prev_layer_size, 256),
                         torch.nn.ReLU(),
-                        torch.nn.Linear(256, num_outputs),
+                        torch.nn.Linear(256, 1),
                     ) for i in range(5)])
         # self._value_branch = SlimFC(
         #     in_size=prev_layer_size,
