@@ -129,6 +129,7 @@ def main(args):
         "model": {
             "custom_model": "my_rnn",
             # "free_log_std": True,
+            "max_seq_len": tune.grid_search([20, 30]),
         },
         "framework": "torch",
         "callbacks": {
@@ -157,6 +158,7 @@ def main(args):
             "clip_param": 0.2,
             "num_sgd_iter": 10,
             "sgd_minibatch_size": 1200,
+
         }
     )
 
@@ -182,7 +184,7 @@ def main(args):
         PPOTrainer,
         # "PPO",
         name=experiment_name,
-        stop={"time_total_s": 24 * 60 * 60},
+        stop={"time_total_s": 44 * 60 * 60},
         checkpoint_freq=2,
         checkpoint_at_end=True,
         local_dir=str(log_dir),
