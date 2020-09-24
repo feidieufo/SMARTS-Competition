@@ -82,13 +82,37 @@ def main(args):
         "scenarios": [str(scenario_path)],
         "headless": args.headless,
         "agent_specs": agent_specs,
+        "skip": 4,
     }
+
+    class SkipEnv(RLlibHiWayEnv):
+        def __init__(self, env_config):
+            self.skip = env_config["skip"]
+            super(SkipEnv, self).__init__(config=env_config)
+
+        def step(self, agent_actions):
+            total_reward = 0.0
+            rewards = {
+                agent_id: 0.0
+                for agent_id in agent_actions
+            }
+
+            for i in range(self.skip):
+                obs, r, done, info = super().step(agent_actions)
+
+                for agent_id in agent_actions:
+                    rewards[agent_id] += r[agent_id]
+
+                if done["__all__"]:
+                    break
+
+            return obs, rewards, done, info
 
     # ====================================
     # init tune config
     # ====================================
     tune_config = {
-        "env": RLlibHiWayEnv,
+        "env": SkipEnv,
         "env_config": env_config,
         "multiagent": {
             "policies": {
@@ -105,7 +129,7 @@ def main(args):
         "log_level": "WARN",
         "num_workers": args.num_workers,
         "horizon": args.horizon,
-        "train_batch_size": 10240 * 3,
+        "train_batch_size": 10240 * 1,
         # "batch_mode": "complete_episodes",
         # "use_gae": False,
     }
@@ -116,7 +140,7 @@ def main(args):
                 "lambda": 0.95,
                 "clip_param": 0.2,
                 "num_sgd_iter": 10,
-                "sgd_minibatch_size": 1024,
+                "sgd_minibatch_size": 256,
             }
         )
     elif args.algorithm in ["A2C", "A3C"]:

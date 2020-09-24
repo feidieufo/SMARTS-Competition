@@ -27,6 +27,20 @@ scenario_paths = [
 ]
 
 print(f"training on {scenario_paths}")
+scenario_paths = [(
+    Path(__file__).parent / "../dataset_public/all_loop/all_loop_a"
+).resolve(), (
+    Path(__file__).parent / "../dataset_public/merge_loop/merge_a"
+).resolve(), (
+    Path(__file__).parent / "../dataset_public/intersection_loop/its_a"
+).resolve(), (
+    Path(__file__).parent / "../dataset_public/mixed_loop/its_merge_a"
+).resolve(), (
+    Path(__file__).parent / "../dataset_public/mixed_loop/roundabout_its_a"
+).resolve(), (
+    Path(__file__).parent / "../dataset_public/mixed_loop/roundabout_merge_a"
+).resolve()]
+print(f"training on {scenario_paths}")
 
 
 def parse_args():
@@ -71,7 +85,8 @@ def main(args):
     # ====================================
     # init env config
     # ====================================
-    ray.init(dashboard_host='127.0.0.1', dashboard_port=8265)
+    # ray.init(dashboard_host='127.0.0.1', dashboard_port=8265)
+    ray.init(webui_host="127.0.0.1")
     # use ray cluster for training
     # ray.init(
     #     address="auto" if args.address is None else args.address,
@@ -122,7 +137,11 @@ def main(args):
         "num_workers": args.num_workers,
         "horizon": args.horizon,
         "train_batch_size": 10240 * 3,
-        "num_gpus": 1,
+        # "num_gpus": 1,
+
+        # "observation_filter": "MeanStdFilter",
+        "batch_mode": "complete_episodes",
+        "grad_clip": 0.5, 
     }
 
     if args.algorithm == "PPO":
