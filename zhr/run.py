@@ -11,15 +11,15 @@ from agent import agent_spec
 # scenario_path = (
 #     Path(__file__).parent / "../dataset_public/all_loop/all_loop_a"
 # ).resolve()
-scenario_path = (
-    Path(__file__).parent / "../dataset_public_mtj/intersection_loop/its_a"
-).resolve()
+# scenario_path = (
+#     Path(__file__).parent / "../dataset_public/intersection_loop/its_a"
+# ).resolve()
 # scenario_path = (
 #     Path(__file__).parent / "../dataset_public/simple_loop/simpleloop_a"
 # ).resolve()
-# scenario_path = (
-#     Path(__file__).parent / "../dataset_public/sharp_loop/sharploop_a"
-# ).resolve()
+scenario_path = (
+    Path(__file__).parent / "../dataset_public/sharp_loop/sharploop_a"
+).resolve()
 # scenario_path = (
 #     Path(__file__).parent / "../dataset_public/merge_loop/merge_a"
 # ).resolve()
@@ -33,6 +33,7 @@ scenario_path = (
 #     Path(__file__).parent / "../dataset_public/mixed_loop/its_merge_a"
 # ).resolve()
 # scenario_root = (Path(__file__).parent / "../dataset_public").resolve()
+scenario_path = [scenario_path]
 
 # scenario_path = [
 #     scenario
@@ -40,6 +41,7 @@ scenario_path = (
 #     for scenario in scenario_dir.iterdir()
 #     if scenario.is_dir()
 # ]
+# scenario_path = scenario_path[1:]
 
 AGENT_ID = "Agent-007"
 
@@ -48,7 +50,7 @@ def main():
 
     env = gym.make(
         "smarts.env:hiway-v0",
-        scenarios=[scenario_path],
+        scenarios=scenario_path,
         agent_specs={AGENT_ID: agent_spec},
         # set headless to false if u want to use envision
         headless=False,

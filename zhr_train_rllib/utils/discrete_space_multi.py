@@ -10,20 +10,24 @@ import numpy as np
 from smarts.core.agent import AgentSpec
 from smarts.core.agent_interface import AgentInterface
 from smarts.core.agent_interface import OGM, NeighborhoodVehicles
-from smarts.core.controllers import ActionSpaceType
+from smarts.core.controllers import ActionSpaceType, DiscreteAction
 
 MAX_LANES = 5  # The maximum number of lanes we expect to see in any scenario.
 lane_crash_flag = False  # used for training to signal a flipped car
 intersection_crash_flag = False  # used for training to signal intersect crash
 
 # ==================================================
-# Continous Action Space
-# throttle, brake, steering
+# Discrete Action Space
+# "keep_lane", "slow_down", "change_lane_left", "change_lane_right"
 # ==================================================
+ACTION_SPACE = gym.spaces.Discrete(4)
+ACTION_CHOICE = [
+    DiscreteAction.keep_lane,
+    DiscreteAction.slow_down,
+    DiscreteAction.change_lane_left,
+    DiscreteAction.change_lane_right,
+]
 
-ACTION_SPACE = gym.spaces.Box(
-    low=np.array([-1.0, -1.0]), high=np.array([1.0, 1.0]), dtype=np.float32
-)
 
 # ==================================================
 # Observation Space
@@ -532,10 +536,8 @@ def reward_adapter(env_obs, env_reward):
 
 
 def action_adapter(model_action):
-    assert len(model_action) == 2
-    throttle = np.clip(model_action[0], 0, 1)
-    brake = np.abs(np.clip(model_action[0], -1, 0))
-    return np.asarray([throttle, brake, model_action[1]])
+    assert model_action in [0, 1, 2, 3]
+    return ACTION_CHOICE[model_action]
 
 
 def info_adapter(reward, info):
@@ -548,10 +550,8 @@ agent_interface = AgentInterface(
     # neighborhood < 60m
     neighborhood_vehicles=NeighborhoodVehicles(radius=60),
     # OGM within 64 * 0.25 = 16
-    ogm=False,
-    rgb=False,
-    lidar=False,
-    action=ActionSpaceType.Continuous,
+    ogm=OGM(64, 64, 0.25),
+    action=ActionSpaceType.Lane,
 )
 
 agent_spec = AgentSpec(
