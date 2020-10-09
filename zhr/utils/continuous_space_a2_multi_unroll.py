@@ -22,7 +22,7 @@ intersection_crash_flag = False  # used for training to signal intersect crash
 # ==================================================
 
 ACTION_SPACE = gym.spaces.Box(
-    low=np.array([0.0, 0.0, -1.0]), high=np.array([1.0, 1.0, 1.0]), dtype=np.float32
+    low=np.array([-1.0, -1.0]), high=np.array([1.0, 1.0]), dtype=np.float32
 )
 
 # ==================================================
@@ -56,6 +56,8 @@ OBSERVATION_SPACE = gym.spaces.Dict(
         "closest_its_nv_rel_speed": gym.spaces.Box(low=-1e10, high=1e10, shape=(1,)),
         # intersection closest social vehicle relative position in vehicle heading coordinate
         "closest_its_nv_rel_pos": gym.spaces.Box(low=-1e10, high=1e10, shape=(2,)),
+
+        "cline": gym.spaces.Box(low=0, high=1, shape=(1,))
     }
 )
 
@@ -426,7 +428,7 @@ def get_distance_from_center(env_obs):
 
     return norm_dist_from_center
 
-
+step = 0
 # ==================================================
 # obs function
 # ==================================================
@@ -436,7 +438,13 @@ def observation_adapter(env_obs):
     """
     ego_state = env_obs.ego_vehicle_state
     wp_paths = env_obs.waypoint_paths
+    cline = float(len(wp_paths))/5.0
     closest_wps = [path[0] for path in wp_paths]
+
+    global step
+    step += 1
+    if step > 100:
+        ttt = 1
 
     # distance of vehicle from center of lane
     closest_wp = min(closest_wps, key=lambda wp: wp.dist_to(ego_state.position))
@@ -478,7 +486,7 @@ def observation_adapter(env_obs):
         ego_state, wp_paths, env_obs.neighborhood_vehicle_states, closest_wp
     )
 
-    lane_ttc, lane_dist = ego_ttc_calc(ego_lane_index, lane_ttc, lane_dist)
+    # lane_ttc, lane_dist = ego_ttc_calc(ego_lane_index, lane_ttc, lane_dist)
 
     return {
         "distance_from_center": np.array([norm_dist_from_center]),
@@ -492,6 +500,7 @@ def observation_adapter(env_obs):
         "intersection_distance": np.array([intersection_distance]),
         "closest_its_nv_rel_speed": np.array([closest_its_nv_rel_speed]),
         "closest_its_nv_rel_pos": np.array(closest_its_nv_rel_pos),
+        "cline": np.array([cline],)
     }
 
 
@@ -528,8 +537,10 @@ def reward_adapter(env_obs, env_reward):
 
 
 def action_adapter(model_action):
-    assert len(model_action) == 3
-    return np.asarray(model_action)
+    assert len(model_action) == 2
+    throttle = np.clip(model_action[0], 0, 1)
+    brake = np.abs(np.clip(model_action[0], -1, 0))
+    return np.asarray([throttle, brake, model_action[1]])
 
 
 def info_adapter(reward, info):
@@ -542,7 +553,9 @@ agent_interface = AgentInterface(
     # neighborhood < 60m
     neighborhood_vehicles=NeighborhoodVehicles(radius=60),
     # OGM within 64 * 0.25 = 16
-    ogm=OGM(64, 64, 0.25),
+    ogm=False,
+    rgb=False,
+    lidar=False,
     action=ActionSpaceType.Continuous,
 )
 

@@ -17,13 +17,24 @@ lane_crash_flag = False  # used for training to signal a flipped car
 intersection_crash_flag = False  # used for training to signal intersect crash
 
 # ==================================================
-# Continous Action Space
-# throttle, brake, steering
+# Discrete Action Space
+# "keep_lane", "slow_down", "change_lane_left", "change_lane_right"
 # ==================================================
+ACTION_SPACE = gym.spaces.Discrete(9)
 
-ACTION_SPACE = gym.spaces.Box(
-    low=np.array([0.0, 0.0, -1.0]), high=np.array([1.0, 1.0, 1.0]), dtype=np.float32
-)
+steering_strength = 0.35
+gas_strength = 1.0
+brake_strength = 0.6
+actions = {0: [0., 0.],
+                1: [0., -steering_strength],
+                2: [0., steering_strength],
+                3: [gas_strength - 0.15, 0.],
+                4: [-brake_strength, 0],
+                5: [gas_strength - 0.3, -steering_strength],
+                6: [gas_strength - 0.3, steering_strength],
+                7: [-brake_strength, -steering_strength],
+                8: [-brake_strength, steering_strength]}
+
 
 # ==================================================
 # Observation Space
@@ -483,7 +494,7 @@ def observation_adapter(env_obs):
     return {
         "distance_from_center": np.array([norm_dist_from_center]),
         "heading_errors": np.array(heading_errors),
-        "speed": np.array([ego_state.speed *3.6/ 120]),
+        "speed": np.array([ego_state.speed / 120]),
         "steering": np.array([ego_state.steering / (0.5 * math.pi)]),
         "lane_ttc": np.array(lane_ttc),
         "lane_dist": np.array(lane_dist),
@@ -528,8 +539,12 @@ def reward_adapter(env_obs, env_reward):
 
 
 def action_adapter(model_action):
-    assert len(model_action) == 3
-    return np.asarray(model_action)
+    assert model_action in [0, 1, 2, 3, 4, 5, 6, 7, 8]
+    model_action = actions[model_action]
+    throttle = np.clip(model_action[0], 0, 1)
+    brake = np.abs(np.clip(model_action[0], -1, 0))
+    return np.asarray([throttle, brake, model_action[1]])
+    # return ACTION_CHOICE[model_action]
 
 
 def info_adapter(reward, info):

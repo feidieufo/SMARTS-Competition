@@ -17,9 +17,9 @@ from agent import agent_spec
 # scenario_path = (
 #     Path(__file__).parent / "../dataset_public/simple_loop/simpleloop_a"
 # ).resolve()
-scenario_path = (
-    Path(__file__).parent / "../dataset_public/sharp_loop/sharploop_a"
-).resolve()
+# scenario_path = (
+#     Path(__file__).parent / "../dataset_public/sharp_loop/sharploop_a"
+# ).resolve()
 # scenario_path = (
 #     Path(__file__).parent / "../dataset_public/merge_loop/merge_a"
 # ).resolve()
@@ -32,15 +32,15 @@ scenario_path = (
 # scenario_path = (
 #     Path(__file__).parent / "../dataset_public/mixed_loop/its_merge_a"
 # ).resolve()
-# scenario_root = (Path(__file__).parent / "../dataset_public").resolve()
-scenario_path = [scenario_path]
+scenario_root = (Path(__file__).parent / "../dataset_impatient").resolve()
+# scenario_path = [scenario_path]
 
-# scenario_path = [
-#     scenario
-#     for scenario_dir in scenario_root.iterdir()
-#     for scenario in scenario_dir.iterdir()
-#     if scenario.is_dir()
-# ]
+scenario_path = [
+    scenario
+    for scenario_dir in scenario_root.iterdir()
+    for scenario in scenario_dir.iterdir()
+    if scenario.is_dir()
+]
 # scenario_path = scenario_path[1:]
 
 AGENT_ID = "Agent-007"
@@ -73,6 +73,13 @@ def main():
             agent_action = agent.act(agent_obs)
             observations, rewards, dones, _ = env.step({AGENT_ID: agent_action})
             total_reward += rewards[AGENT_ID]
+            # if dones["__all__"]:
+            #     break
+            # observations, rewards, dones, _ = env.step({AGENT_ID: agent_action})
+            # total_reward += rewards[AGENT_ID]
+            if step > 1500:
+                print("max step")
+                break
         print("Accumulated reward:", total_reward)
 
     env.close()

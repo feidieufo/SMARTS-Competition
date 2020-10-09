@@ -57,7 +57,7 @@ OBSERVATION_SPACE = gym.spaces.Dict(
         # intersection closest social vehicle relative position in vehicle heading coordinate
         "closest_its_nv_rel_pos": gym.spaces.Box(low=-1e10, high=1e10, shape=(2,)),
 
-        "cline": gym.spaces.Box(low=0, high=1, shape=(1,))
+        "cline": gym.spaces.Box(low=0, high=1, shape=(1,)),
     }
 )
 
@@ -495,7 +495,7 @@ def observation_adapter(env_obs):
         "intersection_distance": np.array([intersection_distance]),
         "closest_its_nv_rel_speed": np.array([closest_its_nv_rel_speed]),
         "closest_its_nv_rel_pos": np.array(closest_its_nv_rel_pos),
-        "cline": np.array([cline],)
+        "cline": np.array([cline]),
     }
 
 

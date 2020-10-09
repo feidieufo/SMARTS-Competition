@@ -10,20 +10,24 @@ import numpy as np
 from smarts.core.agent import AgentSpec
 from smarts.core.agent_interface import AgentInterface
 from smarts.core.agent_interface import OGM, NeighborhoodVehicles
-from smarts.core.controllers import ActionSpaceType
+from smarts.core.controllers import ActionSpaceType, DiscreteAction
 
 MAX_LANES = 5  # The maximum number of lanes we expect to see in any scenario.
 lane_crash_flag = False  # used for training to signal a flipped car
 intersection_crash_flag = False  # used for training to signal intersect crash
 
 # ==================================================
-# Continous Action Space
-# throttle, brake, steering
+# Discrete Action Space
+# "keep_lane", "slow_down", "change_lane_left", "change_lane_right"
 # ==================================================
+ACTION_SPACE = gym.spaces.Discrete(4)
+ACTION_CHOICE = [
+    DiscreteAction.keep_lane,
+    DiscreteAction.slow_down,
+    DiscreteAction.change_lane_left,
+    DiscreteAction.change_lane_right,
+]
 
-ACTION_SPACE = gym.spaces.Box(
-    low=np.array([0.0, 0.0, -1.0]), high=np.array([1.0, 1.0, 1.0]), dtype=np.float32
-)
 
 # ==================================================
 # Observation Space
@@ -56,6 +60,8 @@ OBSERVATION_SPACE = gym.spaces.Dict(
         "closest_its_nv_rel_speed": gym.spaces.Box(low=-1e10, high=1e10, shape=(1,)),
         # intersection closest social vehicle relative position in vehicle heading coordinate
         "closest_its_nv_rel_pos": gym.spaces.Box(low=-1e10, high=1e10, shape=(2,)),
+
+        "cline": gym.spaces.Box(low=0, high=1, shape=(1,)),
     }
 )
 
@@ -436,6 +442,7 @@ def observation_adapter(env_obs):
     """
     ego_state = env_obs.ego_vehicle_state
     wp_paths = env_obs.waypoint_paths
+    cline = float(len(wp_paths))/5.0
     closest_wps = [path[0] for path in wp_paths]
 
     # distance of vehicle from center of lane
@@ -483,7 +490,7 @@ def observation_adapter(env_obs):
     return {
         "distance_from_center": np.array([norm_dist_from_center]),
         "heading_errors": np.array(heading_errors),
-        "speed": np.array([ego_state.speed *3.6/ 120]),
+        "speed": np.array([ego_state.speed / 120]),
         "steering": np.array([ego_state.steering / (0.5 * math.pi)]),
         "lane_ttc": np.array(lane_ttc),
         "lane_dist": np.array(lane_dist),
@@ -492,6 +499,7 @@ def observation_adapter(env_obs):
         "intersection_distance": np.array([intersection_distance]),
         "closest_its_nv_rel_speed": np.array([closest_its_nv_rel_speed]),
         "closest_its_nv_rel_pos": np.array(closest_its_nv_rel_pos),
+        "cline": np.array([cline]),
     }
 
 
@@ -528,8 +536,8 @@ def reward_adapter(env_obs, env_reward):
 
 
 def action_adapter(model_action):
-    assert len(model_action) == 3
-    return np.asarray(model_action)
+    assert model_action in [0, 1, 2, 3]
+    return ACTION_CHOICE[model_action]
 
 
 def info_adapter(reward, info):
@@ -543,7 +551,7 @@ agent_interface = AgentInterface(
     neighborhood_vehicles=NeighborhoodVehicles(radius=60),
     # OGM within 64 * 0.25 = 16
     ogm=OGM(64, 64, 0.25),
-    action=ActionSpaceType.Continuous,
+    action=ActionSpaceType.Lane,
 )
 
 agent_spec = AgentSpec(

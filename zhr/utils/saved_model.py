@@ -194,7 +194,7 @@ class RLlibTFA2FilterPolicy(AgentPolicy):
 
         return action
 
-class RLlibLSTMRAPolicy(AgentPolicy):
+class RLlibLSTMPolicy(AgentPolicy):
     def __init__(
         self, load_path, algorithm, policy_name, observation_space, action_space
     ):

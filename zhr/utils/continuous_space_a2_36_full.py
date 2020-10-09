@@ -22,7 +22,7 @@ intersection_crash_flag = False  # used for training to signal intersect crash
 # ==================================================
 
 ACTION_SPACE = gym.spaces.Box(
-    low=np.array([0.0, 0.0, -1.0]), high=np.array([1.0, 1.0, 1.0]), dtype=np.float32
+    low=np.array([-1.0, -1.0]), high=np.array([1.0, 1.0]), dtype=np.float32
 )
 
 # ==================================================
@@ -438,6 +438,12 @@ def observation_adapter(env_obs):
     wp_paths = env_obs.waypoint_paths
     closest_wps = [path[0] for path in wp_paths]
 
+    crash = env_obs.events.collisions
+    off_road = env_obs.events.off_road
+    off_route = env_obs.events.off_route
+    if crash or off_road or off_route:
+        t = 1
+
     # distance of vehicle from center of lane
     closest_wp = min(closest_wps, key=lambda wp: wp.dist_to(ego_state.position))
     signed_dist_from_center = closest_wp.signed_lateral_error(ego_state.position)
@@ -528,8 +534,17 @@ def reward_adapter(env_obs, env_reward):
 
 
 def action_adapter(model_action):
-    assert len(model_action) == 3
-    return np.asarray(model_action)
+    assert len(model_action) == 2
+    # throttle = np.clip(model_action[0], 0, 1)
+    # brake = np.abs(np.clip(model_action[0], -1, 0))
+    # return np.asarray([throttle, brake, model_action[1]])
+
+    orgin_action=np.asarray(model_action)
+    if orgin_action[0]>=0:
+        action=np.array([orgin_action[0],0,orgin_action[1]])
+    else:
+        action = np.array( [0,-orgin_action[0], orgin_action[1]])
+    return action
 
 
 def info_adapter(reward, info):
@@ -542,7 +557,9 @@ agent_interface = AgentInterface(
     # neighborhood < 60m
     neighborhood_vehicles=NeighborhoodVehicles(radius=60),
     # OGM within 64 * 0.25 = 16
-    ogm=OGM(64, 64, 0.25),
+    ogm=False,
+    rgb=False,
+    lidar=False,
     action=ActionSpaceType.Continuous,
 )
 
