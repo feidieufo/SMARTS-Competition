@@ -293,6 +293,7 @@ def ttc_by_path(ego, wp_paths, neighborhood_vehicle_states, ego_closest_wp):
         ego_speed = ego.speed
         nv_to_ego_vec = nv_pos - ego_pos
 
+        a = np.arctan2(nv_to_ego_vec[:, 1], nv_to_ego_vec[:, 0])* 180 / np.pi
         line_heading = (
             (np.arctan2(nv_to_ego_vec[:, 1], nv_to_ego_vec[:, 0]) * 180 / np.pi) - 90
         ) % 360
@@ -426,7 +427,7 @@ def get_distance_from_center(env_obs):
 
     return norm_dist_from_center
 
-
+step=0
 # ==================================================
 # obs function
 # ==================================================
@@ -438,6 +439,10 @@ def observation_adapter(env_obs):
     wp_paths = env_obs.waypoint_paths
     closest_wps = [path[0] for path in wp_paths]
 
+    global step
+    step += 1
+    if step > 80:
+        t = 1
     crash = env_obs.events.collisions
     off_road = env_obs.events.off_road
     off_route = env_obs.events.off_route
@@ -485,6 +490,9 @@ def observation_adapter(env_obs):
     )
 
     lane_ttc, lane_dist = ego_ttc_calc(ego_lane_index, lane_ttc, lane_dist)
+
+    if intersection_ttc != 1.:
+        t = 1
 
     return {
         "distance_from_center": np.array([norm_dist_from_center]),

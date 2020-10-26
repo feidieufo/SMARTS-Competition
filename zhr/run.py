@@ -32,7 +32,8 @@ from agent import agent_spec
 # scenario_path = (
 #     Path(__file__).parent / "../dataset_public/mixed_loop/its_merge_a"
 # ).resolve()
-scenario_root = (Path(__file__).parent / "../dataset_impatient").resolve()
+# scenario_root = (Path(__file__).parent / "../dataset_impatient").resolve()
+scenario_root = (Path(__file__).parent / "../dataset_public").resolve()
 # scenario_path = [scenario_path]
 
 scenario_path = [
@@ -41,7 +42,7 @@ scenario_path = [
     for scenario in scenario_dir.iterdir()
     if scenario.is_dir()
 ]
-# scenario_path = scenario_path[1:]
+scenario_path = scenario_path[4:5]
 
 AGENT_ID = "Agent-007"
 

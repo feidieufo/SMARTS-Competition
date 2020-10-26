@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- generated on Mon Oct 26 14:25:22 2020 by Eclipse SUMO duarouter Version 1.6.0
+<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/duarouterConfiguration.xsd">
+
+    <input>
+        <net-file value="scenarios/double_merge/cross/map.net.xml"/>
+        <route-files value="/tmp/tmp6n7qemgd/trips.trips.xml"/>
+    </input>
+
+    <output>
+        <output-file value="scenarios/double_merge/cross/traffic/1.rou.xml"/>
+        <alternatives-output value="scenarios/double_merge/cross/traffic/1.rou.alt.xml"/>
+    </output>
+
+    <processing>
+        <unsorted-input value="true"/>
+        <repair value="true"/>
+    </processing>
+
+    <report>
+        <error-log value="/tmp/smarts/_duarouter_routing/traffic/1.log"/>
+        <no-step-log value="true"/>
+    </report>
+
+    <random_number>
+        <seed value="42"/>
+    </random_number>
+
+</configuration>
+-->
+
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
+    <vType id="actor-car--6800297752122973040" minGap="2.50" speedFactor="normc(1.00,0.20,0.20,2.00)" vClass="passenger" impatience="1.00" lcCooperative="0.25" lcImpatience="1" jmDriveAfterYellowTime="1.0" jmDriveAfterRedTime="1.5" accel="2.6" decel="4.5" sigma="0.5"/>
+    <vehicle id="car-flow-route-gneE17_0_2-gneE5_1_120--5156181815769530558--2672546174004634253--0-0.0" type="actor-car--6800297752122973040" depart="0.00" departLane="0" departPos="2.00" departSpeed="max" arrivalLane="1" arrivalPos="120.00">
+        <route edges="gneE17 gneE5"/>
+    </vehicle>
+    <vType id="actor-car--5913700508966306589" minGap="2.50" speedFactor="normc(0.80,0.20,0.20,2.00)" vClass="passenger" impatience="0.50" lcCooperative="0.5" lcImpatience="0" jmDriveAfterYellowTime="1.0" accel="2.6" decel="4.5" sigma="0.5"/>
+    <vehicle id="car-flow-route-gneE17_0_2-gneE5_1_120--5156181815769530558--2672546174004634253--0-1.0" type="actor-car--5913700508966306589" depart="0.00" departLane="0" departPos="2.00" departSpeed="max" arrivalLane="1" arrivalPos="120.00">
+        <route edges="gneE17 gneE5"/>
+    </vehicle>
+</routes>

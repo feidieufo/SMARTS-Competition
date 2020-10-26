@@ -140,9 +140,9 @@ def main(args):
         "horizon": args.horizon,
         "train_batch_size": 10240 * 3,
 
-        "observation_filter": "MeanStdFilter",
-        "batch_mode": "complete_episodes",
-        "grad_clip": 0.5, 
+        # "observation_filter": "MeanStdFilter",
+        # "batch_mode": "complete_episodes",
+        # "grad_clip": 0.5, 
 
         # "model":{
         #     "use_lstm": True,
