@@ -228,7 +228,7 @@ if __name__ == "__main__":
         scenario=args.scenario,
         config_file=args.config_file,
         checkpoint=args.checkpoint,
-        num_steps=args.checkpoint,
+        num_steps=args.num_steps,
         num_episodes=args.num_episodes,
         paradigm=args.paradigm,
         headless=args.headless,
