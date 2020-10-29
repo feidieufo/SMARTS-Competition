@@ -1117,7 +1117,7 @@ def get_reward_adapter(observation_adapter, adapter_type="vanilla"):
         bonus += 0.05 * env_reward
         return bonus + penalty
 
-    def cruising(env_obs, env_reward):
+    def cruising(last_env_obs, env_obs, env_reward):
         global lane_crash_flag
         global intersection_crash_flag
 
