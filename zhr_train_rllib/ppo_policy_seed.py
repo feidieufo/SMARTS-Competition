@@ -2,8 +2,7 @@ import logging
 
 import ray
 from ray.rllib.agents.a3c.a3c_torch_policy import apply_grad_clipping
-from ray.rllib.agents.ppo.ppo_tf_policy import postprocess_ppo_gae, \
-    setup_config
+from ray.rllib.agents.ppo.ppo_tf_policy import postprocess_ppo_gae
 from ray.rllib.evaluation.postprocessing import Postprocessing
 from ray.rllib.policy.sample_batch import SampleBatch
 from ray.rllib.policy.torch_policy import EntropyCoeffSchedule, \
@@ -17,6 +16,15 @@ torch, nn = try_import_torch()
 
 logger = logging.getLogger(__name__)
 
+def setup_config(policy, obs_space, action_space, config):
+    # auto set the model option for layer sharing
+    config["model"]["vf_share_layers"] = config["vf_share_layers"]
+    import numpy as np
+    import random
+    seed = 42
+    np.random.seed(seed)
+    random.seed(seed)
+    torch.manual_seed(seed)
 
 class PPOLoss:
     def __init__(self,
@@ -85,28 +93,10 @@ class PPOLoss:
         curr_entropy = curr_action_dist.entropy()
         self.mean_entropy = reduce_mean_valid(curr_entropy)
 
-        pos1 = torch.where(logp_ratio<0)
-        surrogate_loss1 = torch.max(torch.min(
-            advantages[pos1] * logp_ratio[pos1],
-            advantages[pos1] * torch.clamp(logp_ratio[pos1], 1 - clip_param,
-                                     1 + clip_param)),
-            advantages[pos1] * (1 + clip_param))
-        # surrogate_loss1 = torch.min(
-        #     advantages[pos1] * logp_ratio[pos1],
-        #     advantages[pos1] * torch.clamp(logp_ratio[pos1], 1 - clip_param,
-        #                              1 + clip_param)),
-        pos2 = torch.where(logp_ratio>=0)
-        surrogate_loss2 = torch.max(torch.min(
-            advantages[pos2] * logp_ratio[pos2],
-            advantages[pos2] * torch.clamp(logp_ratio[pos2], 1 - clip_param,
-                                     1 + clip_param)),
-                advantages[pos2] * (1 - clip_param))                       
-        # surrogate_loss2 = torch.min(
-        #     advantages[pos2] * logp_ratio[pos2],
-        #     advantages[pos2] * torch.clamp(logp_ratio[pos2], 1 - clip_param,
-        #                              1 + clip_param))                                    
-        surrogate_loss = torch.cat([surrogate_loss1, surrogate_loss2], dim=0)
-        
+        surrogate_loss = torch.min(
+            advantages * logp_ratio,
+            advantages * torch.clamp(logp_ratio, 1 - clip_param,
+                                     1 + clip_param))
         self.mean_policy_loss = reduce_mean_valid(-surrogate_loss)
 
         if use_gae:

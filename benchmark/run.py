@@ -27,6 +27,7 @@ def main(
     paradigm="decentralized",
     headless=False,
     cluster=False,
+    no_debug=False,
 ):
     if cluster:
         ray.init(address="auto", redis_password="5241590000000000")
@@ -35,6 +36,11 @@ def main(
                 ray.state.cluster_resources()
             )
         )
+    if no_debug:
+        ray.init(webui_host="127.0.0.1")
+    else:
+        ray.init(webui_host="127.0.0.1", local_mode=True)
+        
     scenario_path = Path(scenario).absolute()
     agent_missions_count = Scenario.discover_agent_missions_count(scenario_path)
     if agent_missions_count == 0:
@@ -147,6 +153,9 @@ def parse_args():
     parser.add_argument("--num_workers", type=int, default=1, help="RLlib num workers")
     parser.add_argument("--cluster", action="store_true")
     parser.add_argument(
+        "--no_debug", default=False, action="store_true"
+    )
+    parser.add_argument(
         "--horizon", type=int, default=1000, help="Horizon for a episode"
     )
 
@@ -165,4 +174,5 @@ if __name__ == "__main__":
         paradigm=args.paradigm,
         headless=args.headless,
         cluster=args.cluster,
+        no_debug=args.no_debug,
     )
