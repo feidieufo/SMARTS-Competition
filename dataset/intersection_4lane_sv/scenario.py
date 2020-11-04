@@ -6,9 +6,9 @@ import smarts.sstudio.types as t
 
 missions = [
     t.Mission(t.Route(begin=("edge-south-SN", 1, 40), end=("edge-west-EW", 0, 60))),
-    t.Mission(t.Route(begin=("edge-west-WE", 1, 50), end=("edge-east-WE", 0, 60))),
-    t.Mission(t.Route(begin=("edge-north-NS", 0, 40), end=("edge-south-NS", 1, 40))),
-    t.Mission(t.Route(begin=("edge-east-EW", 0, 50), end=("edge-west-EW", 1, 40))),
+    # t.Mission(t.Route(begin=("edge-west-WE", 1, 50), end=("edge-east-WE", 0, 60))),
+    # t.Mission(t.Route(begin=("edge-north-NS", 0, 40), end=("edge-south-NS", 1, 40))),
+    # t.Mission(t.Route(begin=("edge-east-EW", 0, 50), end=("edge-west-EW", 1, 40))),
 ]
 
 impatient_car = t.TrafficActor(
