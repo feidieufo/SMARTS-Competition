@@ -21,7 +21,7 @@ def setup_config(policy, obs_space, action_space, config):
     config["model"]["vf_share_layers"] = config["vf_share_layers"]
     import numpy as np
     import random
-    seed = 42
+    seed = int(config["seed_global"])
     np.random.seed(seed)
     random.seed(seed)
     torch.manual_seed(seed)

@@ -3,8 +3,8 @@ from pathlib import Path
 
 import ray
 from ray import tune
-from zhr_train_rllib.utils.continuous_space_a2 import agent_spec, OBSERVATION_SPACE, ACTION_SPACE
-from zhr_train_rllib.ppo_policy import PPOTorchPolicy
+from zhr_train_rllib.utils.continuous_space_a2_36_head import agent_spec, OBSERVATION_SPACE, ACTION_SPACE
+from zhr_train_rllib.ppo_policy_seed import PPOTorchPolicy
 from .fc_model import FullyConnectedNetwork
 from ray.rllib.models import ModelCatalog
 
@@ -28,12 +28,30 @@ scenario_paths = [
 ]
 
 print(f"training on {scenario_paths}")
+scenario_paths = [(
+#     Path(__file__).parent / "../dataset_public/all_loop/all_loop_a"
+# ).resolve(), (
+#     Path(__file__).parent / "../dataset_public/merge_loop/merge_a"
+# ).resolve(), (
+    Path(__file__).parent / "../dataset_public/intersection_loop/its_a"
+# ).resolve(), (
+#     Path(__file__).parent / "../dataset_public/mixed_loop/its_merge_a"
+# ).resolve(), (
+#     Path(__file__).parent / "../dataset_public/mixed_loop/roundabout_its_a"
+# ).resolve(), (
+#     Path(__file__).parent / "../dataset_public/mixed_loop/roundabout_merge_a"
+# ).resolve(), (
+    # Path(__file__).parent / "../dataset_public/simple_loop/simpleloop_a"
+).resolve()]
+print(f"training on {scenario_paths}")
 
 from ray.rllib.agents.trainer_template import build_trainer
 from ray.rllib.agents.ppo.ppo import DEFAULT_CONFIG, execution_plan, validate_config
+config = DEFAULT_CONFIG.copy()
+config["seed_global"] = 0
 PPOTrainer = build_trainer(
     name="PPO_TORCH",
-    default_config=DEFAULT_CONFIG,
+    default_config=config,
     default_policy=PPOTorchPolicy,
     execution_plan=execution_plan,
     validate_config=validate_config)
@@ -160,9 +178,9 @@ def main(args):
         "horizon": args.horizon,
         "train_batch_size": 10240 * 3,
 
-        "observation_filter": "MeanStdFilter",
-        "batch_mode": "complete_episodes",
-        "grad_clip": 0.5, 
+        # "observation_filter": "MeanStdFilter",
+        # "batch_mode": "complete_episodes",
+        # "grad_clip": 0.5, 
 
         # "model":{
         #     "use_lstm": True,
@@ -175,6 +193,10 @@ def main(args):
             "clip_param": 0.2,
             "num_sgd_iter": 10,
             "sgd_minibatch_size": 1024,
+
+            "gamma": 0.995,
+            "seed_global": tune.grid_search([10, 20, 30])
+
         }
     )
 
@@ -182,7 +204,7 @@ def main(args):
     # init log and checkpoint dir_info
     # ====================================
     experiment_name = EXPERIMENT_NAME.format(
-        scenario="multi_scenarios", algorithm="PPO", n_agent=1,
+        scenario="multi_scenarios_test", algorithm="PPO", n_agent=1,
     )
 
     log_dir = Path(args.log_dir).expanduser().absolute() / RUN_NAME
@@ -200,7 +222,7 @@ def main(args):
         PPOTrainer,
         # "PPO",
         name=experiment_name,
-        stop={"time_total_s": 24 * 60 * 60},
+        stop={"timesteps_total": 10000000},
         checkpoint_freq=2,
         checkpoint_at_end=True,
         local_dir=str(log_dir),
