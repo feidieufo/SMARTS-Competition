@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- generated on Mon Nov  9 00:04:54 2020 by Eclipse SUMO duarouter Version 1.7.0
+<!-- generated on Thu Nov 12 06:57:48 2020 by Eclipse SUMO duarouter Version 1.6.0
 <configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/duarouterConfiguration.xsd">
 
     <input>
         <net-file value="dataset/intersection_4lane_sv_right/map.net.xml"/>
-        <route-files value="/tmp/tmp3i0lxy51/trips.trips.xml"/>
+        <route-files value="/tmp/tmpknh8zs1g/trips.trips.xml"/>
     </input>
 
     <output>
@@ -31,18 +31,18 @@
 -->
 
 <routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
-    <vType id="actor-car--1852526618826166124" minGap="2.50" speedFactor="normc(1.00,0.20,0.20,2.00)" vClass="passenger" impatience="1.00" lcCooperative="0.25" lcImpatience="1" jmDriveAfterYellowTime="1.0" jmDriveAfterRedTime="1.5" accel="2.6" decel="4.5" sigma="0.5"/>
-    <vehicle id="car-flow-route-edge-east-EW_0_random-edge-west-EW_0_random--4746213651340451561--4614596450659330318--1-0.0" type="actor-car--1852526618826166124" depart="0.00" departLane="0" departPos="random" departSpeed="max" arrivalLane="0" arrivalPos="random">
+    <vType id="actor-car-7351114105661182597" minGap="2.50" speedFactor="normc(1.00,0.20,0.20,2.00)" vClass="passenger" impatience="1.00" lcCooperative="0.25" lcImpatience="1" jmDriveAfterYellowTime="1.0" jmDriveAfterRedTime="1.5" accel="2.6" decel="4.5" sigma="0.5"/>
+    <vehicle id="car-flow-route-edge-east-EW_0_random-edge-west-EW_0_random-5362531372274118879---136825415048266267--1-0.0" type="actor-car-7351114105661182597" depart="0.00" departLane="0" departPos="random" departSpeed="max" arrivalLane="0" arrivalPos="random">
         <route edges="edge-east-EW edge-west-EW"/>
     </vehicle>
-    <vType id="actor-car--781802927142381353" minGap="2.50" speedFactor="normc(0.80,0.20,0.20,2.00)" vClass="passenger" impatience="0.50" lcCooperative="0.5" lcImpatience="0" jmDriveAfterYellowTime="1.0" accel="2.6" decel="4.5" sigma="0.5"/>
-    <vehicle id="car-flow-route-edge-east-EW_0_random-edge-west-EW_0_random--4746213651340451561--4614596450659330318--1-1.0" type="actor-car--781802927142381353" depart="0.00" departLane="0" departPos="random" departSpeed="max" arrivalLane="0" arrivalPos="random">
+    <vType id="actor-car-791131883028625314" minGap="2.50" speedFactor="normc(0.80,0.20,0.20,2.00)" vClass="passenger" impatience="0.50" lcCooperative="0.5" lcImpatience="0" jmDriveAfterYellowTime="1.0" accel="2.6" decel="4.5" sigma="0.5"/>
+    <vehicle id="car-flow-route-edge-east-EW_0_random-edge-west-EW_0_random-5362531372274118879---136825415048266267--1-1.0" type="actor-car-791131883028625314" depart="0.00" departLane="0" departPos="random" departSpeed="max" arrivalLane="0" arrivalPos="random">
         <route edges="edge-east-EW edge-west-EW"/>
     </vehicle>
-    <vehicle id="car-flow-route-edge-west-WE_0_random-edge-east-WE_0_random--3935639839854556470--4614596450659330318--0-0.0" type="actor-car--1852526618826166124" depart="0.00" departLane="0" departPos="random" departSpeed="max" arrivalLane="0" arrivalPos="random">
+    <vehicle id="car-flow-route-edge-west-WE_0_random-edge-east-WE_0_random-7398054084155041911---136825415048266267--0-0.0" type="actor-car-7351114105661182597" depart="0.00" departLane="0" departPos="random" departSpeed="max" arrivalLane="0" arrivalPos="random">
         <route edges="edge-west-WE edge-east-WE"/>
     </vehicle>
-    <vehicle id="car-flow-route-edge-west-WE_0_random-edge-east-WE_0_random--3935639839854556470--4614596450659330318--0-1.0" type="actor-car--781802927142381353" depart="0.00" departLane="0" departPos="random" departSpeed="max" arrivalLane="0" arrivalPos="random">
+    <vehicle id="car-flow-route-edge-west-WE_0_random-edge-east-WE_0_random-7398054084155041911---136825415048266267--0-1.0" type="actor-car-791131883028625314" depart="0.00" departLane="0" departPos="random" departSpeed="max" arrivalLane="0" arrivalPos="random">
         <route edges="edge-west-WE edge-east-WE"/>
     </vehicle>
 </routes>

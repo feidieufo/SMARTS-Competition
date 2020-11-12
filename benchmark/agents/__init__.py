@@ -111,6 +111,8 @@ def _make_rllib_config(config, mode="train"):
     adapter_type = (
         "stack_frame" if wrapper == rllib_wrappers.FrameStack else "single_frame"
     )
+    if agent.get("adapter_type", {}) != {}:
+        adapter_type = agent.get("adapter_type", {})
     observation_adapter = common.get_observation_adapter(
         frame_space, adapter_type, wrapper=wrapper, feature_configs=features
     )

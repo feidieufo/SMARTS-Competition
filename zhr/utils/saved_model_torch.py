@@ -136,6 +136,107 @@ class RLlibTorchFCPolicy(AgentPolicy):
         action = action[0]
 
         return action
+        
+from ray.rllib.models.torch.torch_action_dist import TorchDistributionWrapper
+from ray.rllib.models.action_dist import ActionDistribution
+from ray.rllib.utils.annotations import override
+import numpy as np
+import torch
+class TorchDyDistribution(TorchDistributionWrapper):
+    @override(ActionDistribution)
+    def __init__(self, inputs, model):
+        super().__init__(inputs, model)
+        mean, log_std = torch.chunk(self.inputs[:,:-4], 2, dim=1)
+        dy_num = self.inputs[:,-4:]
+        self.dist1 = torch.distributions.normal.Normal(mean, torch.exp(log_std))
+        self.dist2 = torch.distributions.categorical.Categorical(
+            logits=dy_num)
+
+    @override(ActionDistribution)
+    def deterministic_sample(self):
+        mean = self.dist1.mean
+        dy = self.dist2.probs.argmax(dim=1).unsqueeze(0)
+        self.last_sample = torch.cat([mean, dy.float()], dim=1)
+        return self.last_sample
+
+    @override(ActionDistribution)
+    def sample(self):
+        mean = self.dist1.sample()
+        dy = self.dist2.sample().unsqueeze(0)
+        self.last_sample = torch.cat([mean, dy.float()], dim=1)
+        return self.last_sample
+
+    @override(ActionDistribution)
+    def sampled_action_logp(self):
+        assert self.last_sample is not None
+        return self.logp(self.last_sample)
+
+    @override(TorchDistributionWrapper)
+    def logp(self, actions):
+        a1 = actions[:, :-1]
+        a2 = actions[:, -1]
+        l1 = self.dist1.log_prob(a1)
+        l2 = self.dist2.log_prob(a2)
+        return self.dist1.log_prob(a1).sum(-1) + self.dist2.log_prob(a2)
+
+    @override(TorchDistributionWrapper)
+    def entropy(self):
+        e1 = self.dist1.entropy()
+        e2 = self.dist2.entropy()
+        return self.dist1.entropy().sum(-1) + self.dist2.entropy()  
+
+    @override(ActionDistribution)
+    def kl(self, other):
+        return torch.distributions.kl.kl_divergence(self.dist1, other.dist1).sum(-1) + \
+                torch.distributions.kl.kl_divergence(self.dist2, other.dist2)
+
+    @staticmethod
+    @override(ActionDistribution)
+    def required_model_output_shape(action_space, model_config):
+        return (np.prod(action_space.shape)-1) * 2 + 4
+
+class RLlibTorchFCDyskipPolicy(AgentPolicy):
+    def __init__(self, load_path, algorithm, policy_name, observation_space, action_space):
+        self._checkpoint_path = load_path
+        self._policy_name = policy_name
+        self._observation_space = observation_space
+        self._action_space = action_space
+        self._prep = ModelCatalog.get_preprocessor_for_space(self._observation_space)
+        flat_obs_space = self._prep.observation_space
+
+        ray.init(ignore_reinit_error=True, local_mode=True)
+
+        from utils.ppo_policy import PPOTorchPolicy as LoadPolicy
+        from utils.fc_model import FullyConnectedNetwork
+        ModelCatalog.register_custom_model("my_fc", FullyConnectedNetwork)
+        ModelCatalog.register_custom_action_dist("my_dist", TorchDyDistribution)
+        config = ray.rllib.agents.ppo.ppo.DEFAULT_CONFIG.copy()
+        config['num_workers'] = 0
+        config["model"]["custom_model"] = "my_fc"
+        config['model']['free_log_std'] = False
+        config["model"]["custom_action_dist"] =  "my_dist"
+
+        self.policy = LoadPolicy(flat_obs_space, self._action_space, config)
+        objs = pickle.load(open(self._checkpoint_path, "rb"))
+        objs = pickle.loads(objs["worker"])
+        state = objs["state"]
+        filters = objs["filters"]
+        self.filters = filters[self._policy_name]
+        weights = state[self._policy_name]
+        weights.pop("_optimizer_variables")
+        self.policy.set_weights(weights)
+        self.model = self.policy.model
+
+    def act(self, obs):
+
+        # single infer
+        obs = self._prep.transform(obs)
+        obs = self.filters(obs, update=False)
+        action, _, _ = self.policy.compute_actions([obs], explore=False)
+        action = action[0]
+
+        return action
+
 
 class RLlibTorchMultiPolicy(AgentPolicy):
     def __init__(self, load_path, algorithm, policy_name, observation_space, action_space):
