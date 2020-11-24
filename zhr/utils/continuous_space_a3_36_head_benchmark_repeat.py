@@ -22,7 +22,7 @@ intersection_crash_flag = False  # used for training to signal intersect crash
 # ==================================================
 
 ACTION_SPACE = gym.spaces.Box(
-    low=np.array([0.0, 0.0, -1.0]), high=np.array([1.0, 1.0, 1.0]), dtype=np.float32
+    low=np.array([0.0, 0.0, -1.0, 0.0]), high=np.array([1.0, 1.0, 1.0, 1.0]), dtype=np.float32
 )
 
 def proximity_detection(OGM):
