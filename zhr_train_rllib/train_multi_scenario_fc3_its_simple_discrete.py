@@ -3,7 +3,7 @@ from pathlib import Path
 
 import ray
 from ray import tune
-from zhr_train_rllib.utils.continuous_space_a3_36_head_benchmark_neighbor import agent_spec, OBSERVATION_SPACE, ACTION_SPACE
+from zhr_train_rllib.utils.discrete_space_36_head_benchmark_neighbor import agent_spec, OBSERVATION_SPACE, ACTION_SPACE
 from zhr_train_rllib.ppo_policy_seed import PPOTorchPolicy
 from .fc_model import FullyConnectedNetwork
 from ray.rllib.models import ModelCatalog
