@@ -4,8 +4,8 @@ from pathlib import Path
 import ray
 from ray import tune
 from zhr_train_rllib.utils.discrete_space_36_head_benchmark_ogm import agent_spec, OBSERVATION_SPACE, ACTION_SPACE
-from zhr_train_rllib.ppo_policy_seed import PPOTorchPolicy
-from .fc_model import FullyConnectedNetwork
+from zhr_train_rllib.dqn_policy import DQNTorchPolicy
+from .dqn_model import DQNTorchModel
 from ray.rllib.models import ModelCatalog
 
 from smarts.env.rllib_hiway_env import RLlibHiWayEnv
@@ -48,15 +48,11 @@ scenario_paths = [(
 print(f"training on {scenario_paths}")
 
 from ray.rllib.agents.trainer_template import build_trainer
-from ray.rllib.agents.ppo.ppo import DEFAULT_CONFIG, execution_plan, validate_config
+from ray.rllib.agents.dqn.dqn import DEFAULT_CONFIG, DQNTrainer
 config = DEFAULT_CONFIG.copy()
-config["seed_global"] = 0
-PPOTrainer = build_trainer(
-    name="PPO_TORCH",
-    default_config=config,
-    default_policy=PPOTorchPolicy,
-    execution_plan=execution_plan,
-    validate_config=validate_config)
+# config["seed_global"] = 0
+DQN = DQNTrainer.with_updates(
+    name="DQN_TORCH", default_policy=DQNTorchPolicy, default_config=DEFAULT_CONFIG)
 
 def parse_args():
     parser = argparse.ArgumentParser("train on multi scenarios")
@@ -136,7 +132,6 @@ def main(args):
             ]
             super(MultiEnv, self).__init__(config=env_config)
 
-    # ModelCatalog.register_custom_model("my_fc", FullyConnectedNetwork)
     tune_config = {
         "env": MultiEnv,
         "env_config": env_config,
@@ -146,9 +141,6 @@ def main(args):
             },
             "policy_mapping_fn": lambda agent_id: "default_policy",
         },
-        # "model": {
-        #     "custom_model": "my_fc",
-        # },
         "framework": "torch",
         "callbacks": {
             "on_episode_start": on_episode_start,
@@ -168,7 +160,9 @@ def main(args):
         "exploration_config": {
             "epsilon_timesteps": 200000,
             "final_epsilon": .01
-        }
+        },
+
+        "timesteps_per_iteration": 10000,
 
 
         # "observation_filter": "MeanStdFilter",
@@ -210,8 +204,8 @@ def main(args):
 
     # run experiments
     analysis = tune.run(
-        # PPOTrainer,
-        "DQN",
+        DQN,
+        # "DQN",
         name=experiment_name,
         stop={"timesteps_total": 10000000/2},
         checkpoint_freq=10,
