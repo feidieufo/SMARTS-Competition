@@ -3,7 +3,7 @@ from pathlib import Path
 
 import ray
 from ray import tune
-from zhr_train_rllib.utils.discrete_space_36_head_benchmark_ogm import agent_spec, OBSERVATION_SPACE, ACTION_SPACE
+from zhr_train_rllib.utils.discrete_space_36_head_benchmark_ogm_9 import agent_spec, OBSERVATION_SPACE, ACTION_SPACE
 from zhr_train_rllib.dqn_policy import DQNTorchPolicy
 from .dqn_model import DQNTorchModel
 from ray.rllib.models import ModelCatalog
