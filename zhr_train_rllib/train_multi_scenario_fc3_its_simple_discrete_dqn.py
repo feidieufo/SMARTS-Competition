@@ -48,11 +48,11 @@ scenario_paths = [(
 print(f"training on {scenario_paths}")
 
 from ray.rllib.agents.trainer_template import build_trainer
-from ray.rllib.agents.dqn.dqn import DEFAULT_CONFIG, DQNTrainer
+from ray.rllib.agents.dqn.dqn import DEFAULT_CONFIG, DQNTrainer, validate_config, execution_plan, get_policy_class
 config = DEFAULT_CONFIG.copy()
 # config["seed_global"] = 0
 DQN = DQNTrainer.with_updates(
-    name="DQN_TORCH", default_policy=DQNTorchPolicy, default_config=DEFAULT_CONFIG)
+    name="DQN_TORCH", default_policy=DQNTorchPolicy, default_config=DEFAULT_CONFIG, get_policy_class=None)
 
 def parse_args():
     parser = argparse.ArgumentParser("train on multi scenarios")
@@ -164,10 +164,9 @@ def main(args):
 
         "timesteps_per_iteration": 10000,
 
+        "dueling": False,
 
         # "observation_filter": "MeanStdFilter",
-        # "batch_mode": "complete_episodes",
-        # "grad_clip": 0.5, 
 
         # "model":{
         #     "use_lstm": True,
@@ -176,10 +175,6 @@ def main(args):
 
     tune_config.update(
         {
-            # "lambda": 0.95,
-            # "clip_param": 0.2,
-            # "num_sgd_iter": 10,
-            # "sgd_minibatch_size": 1024,
             "gamma": 0.995,
             # "seed_global": tune.grid_search([10, 20, 30, 40])
         }
@@ -189,7 +184,7 @@ def main(args):
     # init log and checkpoint dir_info
     # ====================================
     experiment_name = EXPERIMENT_NAME.format(
-        scenario=args.exper, algorithm="PPO", n_agent=1,
+        scenario=args.exper, algorithm="DQN", n_agent=1,
     )
 
     log_dir = Path(args.log_dir).expanduser().absolute() / RUN_NAME
