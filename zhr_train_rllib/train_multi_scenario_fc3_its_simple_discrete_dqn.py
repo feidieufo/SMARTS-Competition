@@ -165,6 +165,7 @@ def main(args):
         "timesteps_per_iteration": 10000,
 
         "dueling": False,
+        "prioritized_replay": False,
 
         # "observation_filter": "MeanStdFilter",
 
