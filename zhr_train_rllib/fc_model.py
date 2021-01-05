@@ -137,7 +137,7 @@ class FCN_MultiV(TorchModelV2, nn.Module):
     """Generic fully connected network."""
 
     def __init__(self, obs_space, action_space, num_outputs, model_config,
-                 name):
+                 name, num_v=2):
         TorchModelV2.__init__(self, obs_space, action_space, num_outputs,
                               model_config, name)
         nn.Module.__init__(self)
@@ -149,7 +149,7 @@ class FCN_MultiV(TorchModelV2, nn.Module):
         self.vf_share_layers = model_config.get("vf_share_layers")
         self.free_log_std = model_config.get("free_log_std")
 
-        self.num_v = 2
+        self.num_v = num_v
 
         # Generate free-floating bias variables for the second half of
         # the outputs.
