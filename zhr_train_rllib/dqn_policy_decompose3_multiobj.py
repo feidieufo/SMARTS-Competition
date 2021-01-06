@@ -114,9 +114,18 @@ class QLoss:
         self.loss = torch.mean(
             importance_weights.float().unsqueeze(1) * huber_loss(self.td_error))
         self.stats = {
-            "mean_q": torch.mean(q_t_selected),
-            "min_q": torch.min(q_t_selected),
-            "max_q": torch.max(q_t_selected),
+            "mean_q1": torch.mean(q_t_selected[:,0]),
+            "min_q1": torch.min(q_t_selected[:,0]),
+            "max_q1": torch.max(q_t_selected[:,0]),
+
+            "mean_q2": torch.mean(q_t_selected[:,1]),
+            "min_q2": torch.min(q_t_selected[:,1]),
+            "max_q2": torch.max(q_t_selected[:,1]),
+
+            "mean_q3": torch.mean(q_t_selected[:,2]),
+            "min_q3": torch.min(q_t_selected[:,2]),
+            "max_q3": torch.max(q_t_selected[:,2]),
+
             "td_error": self.td_error,
             "mean_td_error": torch.mean(self.td_error),
         }
@@ -216,7 +225,7 @@ def get_distribution_inputs_and_class(policy,
     return policy.q_values, TorchMultiObjCategorical, []  # state-out
 
 def choose_tend_action(q_values):
-    threshold = -0.5
+    threshold = -0.2
     action_set_sub = [(q >= torch.max(q) + threshold).int() for q in q_values]
     action_set = [torch.where(q >= torch.max(q) + threshold)[1] for q in q_values]
     choice = random.randrange(len(action_set))
@@ -225,14 +234,15 @@ def choose_tend_action(q_values):
     for j in range(q_values[0].shape[0]):
         cur_valid = valid[j].clone().detach()
         last_valid = cur_valid.clone().detach()
-        for a_set in action_set_sub:
+        for (i,a_set) in enumerate(action_set_sub):
             cur_valid = cur_valid & a_set[j]
 
             if not cur_valid.bool().any():
-                cur_valid = last_valid
+                valid_q = q_values[i][j]*last_valid
+                a = torch.argmax(valid_q)
+                cur_valid[a] = 1
                 break
             last_valid = cur_valid
-        t = valid[j]
         valid[j] = cur_valid
 
 

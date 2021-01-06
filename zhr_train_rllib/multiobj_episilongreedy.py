@@ -86,7 +86,7 @@ class EpsilonGreedy(Exploration):
         _, exploit_action = torch.max(q_values[0], 1)
         action_logp = torch.zeros_like(exploit_action)
 
-        threshold = -0.5
+        threshold = -0.2
         action_set_sub = [(q >= torch.max(q) + threshold).int() for q in q_values]
         action_set = [torch.where(q >= torch.max(q) + threshold)[1] for q in q_values]
         choice = random.randrange(len(action_set))
@@ -105,8 +105,9 @@ class EpsilonGreedy(Exploration):
             valid = valid & a_set
 
             if not valid.bool().any():
-                valid = last_valid
-                break
+                valid_q = q_values[i]*last_valid
+                a = torch.argmax(valid_q, dim=1)
+                return a, action_logp
         
         a = torch.multinomial(valid.float(), num_samples=1)
         return a.squeeze(dim=1), action_logp

@@ -156,10 +156,10 @@ def main(args):
         "rollout_fragment_length": 4,
         "train_batch_size": 32,
         
-        "exploration_config": {
-            "epsilon_timesteps": 200000,
-            "final_epsilon": .01
-        },
+        # "exploration_config": {
+        #     "epsilon_timesteps": 200000,
+        #     "final_epsilon": .01
+        # },
 
         "timesteps_per_iteration": 10000,
 
@@ -173,7 +173,7 @@ def main(args):
             # Parameters for the Exploration class' constructor:
             "initial_epsilon": 1.0,
             "final_epsilon": 0.02,
-            "epsilon_timesteps": 10000,  # Timesteps over which to anneal epsilon.
+            "epsilon_timesteps": 200000,  # Timesteps over which to anneal epsilon.
         },
 
         # "observation_filter": "MeanStdFilter",
@@ -221,7 +221,7 @@ def main(args):
         max_failures=1000,
         export_formats=["model", "checkpoint"],
         config=tune_config,
-        # num_samples=4,
+        num_samples=4,
     )
 
     print(analysis.dataframe().head())
