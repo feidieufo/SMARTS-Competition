@@ -122,9 +122,9 @@ class QLoss:
             "min_q2": torch.min(q_t_selected[:,1]),
             "max_q2": torch.max(q_t_selected[:,1]),
 
-            "mean_q3": torch.mean(q_t_selected[:,2]),
-            "min_q3": torch.min(q_t_selected[:,2]),
-            "max_q3": torch.max(q_t_selected[:,2]),
+            # "mean_q3": torch.mean(q_t_selected[:,2]),
+            # "min_q3": torch.min(q_t_selected[:,2]),
+            # "max_q3": torch.max(q_t_selected[:,2]),
 
             "td_error": self.td_error,
             "mean_td_error": torch.mean(self.td_error),
@@ -184,7 +184,7 @@ def build_q_model_and_distribution(policy, obs_space, action_space, config):
         # TODO(sven): Move option to add LayerNorm after each Dense
         #  generically into ModelCatalog.
         add_layer_norm=add_layer_norm,
-        decompose_num=3)
+        decompose_num=config["decompose_num"])
 
     policy.q_func_vars = policy.q_model.variables()
 
@@ -203,7 +203,7 @@ def build_q_model_and_distribution(policy, obs_space, action_space, config):
         # TODO(sven): Move option to add LayerNorm after each Dense
         #  generically into ModelCatalog.
         add_layer_norm=add_layer_norm,
-        decompose_num=3)
+        decompose_num=config["decompose_num"])
 
     policy.target_q_func_vars = policy.target_q_model.variables()
 

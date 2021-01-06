@@ -49,9 +49,9 @@ print(f"training on {scenario_paths}")
 from ray.rllib.agents.trainer_template import build_trainer
 from ray.rllib.agents.dqn.dqn import DEFAULT_CONFIG, DQNTrainer, validate_config, execution_plan, get_policy_class
 config = DEFAULT_CONFIG.copy()
-# config["seed_global"] = 0
+config["decompose_num"] = 3
 DQN = DQNTrainer.with_updates(
-    name="DQN_TORCH", default_policy=DQNTorchPolicy, default_config=DEFAULT_CONFIG, get_policy_class=None)
+    name="DQN_TORCH", default_policy=DQNTorchPolicy, default_config=config, get_policy_class=None)
 
 def parse_args():
     parser = argparse.ArgumentParser("train on multi scenarios")
@@ -186,6 +186,7 @@ def main(args):
     tune_config.update(
         {
             "gamma": 0.995,
+            "decompose_num": 2,
             # "seed_global": tune.grid_search([10, 20, 30, 40])
         }
     )
