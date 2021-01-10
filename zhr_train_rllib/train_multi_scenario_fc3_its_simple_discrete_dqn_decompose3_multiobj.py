@@ -166,6 +166,11 @@ def main(args):
         "dueling": False,
         "prioritized_replay": False,
 
+        # "model": {
+        #     "fcnet_hiddens": [256, 256],
+        #     "fcnet_activation": "relu",
+        # },
+
         "exploration_config": {
             # Exploration sub-class by name or full path to module+class
             # (e.g. “ray.rllib.utils.exploration.epsilon_greedy.EpsilonGreedy”)
@@ -186,7 +191,7 @@ def main(args):
     tune_config.update(
         {
             "gamma": 0.995,
-            "decompose_num": 2,
+            "decompose_num": 3,
             # "seed_global": tune.grid_search([10, 20, 30, 40])
         }
     )

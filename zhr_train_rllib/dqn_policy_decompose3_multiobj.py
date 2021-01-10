@@ -122,9 +122,9 @@ class QLoss:
             "min_q2": torch.min(q_t_selected[:,1]),
             "max_q2": torch.max(q_t_selected[:,1]),
 
-            # "mean_q3": torch.mean(q_t_selected[:,2]),
-            # "min_q3": torch.min(q_t_selected[:,2]),
-            # "max_q3": torch.max(q_t_selected[:,2]),
+            "mean_q3": torch.mean(q_t_selected[:,2]),
+            "min_q3": torch.min(q_t_selected[:,2]),
+            "max_q3": torch.max(q_t_selected[:,2]),
 
             "td_error": self.td_error,
             "mean_td_error": torch.mean(self.td_error),
@@ -225,8 +225,8 @@ def get_distribution_inputs_and_class(policy,
     return policy.q_values, TorchMultiObjCategorical, []  # state-out
 
 def choose_tend_action(q_values):
-    threshold = -0.2
-    action_set_sub = [(q >= torch.max(q) + threshold).int() for q in q_values]
+    threshold = -0.01
+    action_set_sub = [(q >= (torch.max(q, dim=-1)[0] + threshold).unsqueeze(1)).int() for q in q_values]
     action_set = [torch.where(q >= torch.max(q) + threshold)[1] for q in q_values]
     choice = random.randrange(len(action_set))
     valid = torch.ones_like(q_values[0]).int()
@@ -239,6 +239,7 @@ def choose_tend_action(q_values):
 
             if not cur_valid.bool().any():
                 valid_q = q_values[i][j]*last_valid
+                valid_q = torch.where(valid_q == 0.0, valid_q-10000.0, valid_q)
                 a = torch.argmax(valid_q)
                 cur_valid[a] = 1
                 break
@@ -246,20 +247,13 @@ def choose_tend_action(q_values):
         valid[j] = cur_valid
 
 
-    # for (i, a_set) in enumerate(action_set_sub):
-    #     last_valid = valid 
-    #     for a_sample in a_set:
-    #         valid = valid & a_set
-    #         if 
-    #     last_valid = valid    
-    #     valid_test = valid & a_set
+    valid_q = valid * q_values[-1]
+    valid_q = torch.where(valid_q == 0.0, valid_q-10000.0, valid_q)
+    a = torch.argmax(valid_q, dim=-1)
+    return a
 
-
-    #     if not valid.bool().any():
-    #         valid = last_valid
-    #         break
-    a = torch.multinomial(valid.float(), num_samples=1)
-    return a.squeeze(dim=1)
+    # a = torch.multinomial(valid.float(), num_samples=1)
+    # return a.squeeze(dim=1)
 
 def build_q_losses(policy, model, _, train_batch):
     config = policy.config
