@@ -1,6 +1,7 @@
 import logging
 import numpy as np
 
+from ray.rllib.models.modelv2 import ModelV2, restore_original_dimensions
 from ray.rllib.models.torch.torch_modelv2 import TorchModelV2
 from ray.rllib.models.torch.misc import SlimFC, AppendBiasLayer, \
     normc_initializer
@@ -244,6 +245,204 @@ class FCN_MultiV(TorchModelV2, nn.Module):
             self._features
         if self.free_log_std:
             logits = self._append_free_log_std(logits)
+        return logits, state
+
+    @override(TorchModelV2)
+    def value_function(self):
+        assert self._features is not None, "must call forward() first"
+        if self._value_branch_separate:
+            return self._value_branch(
+                self._value_branch_separate(self._last_flat_in))
+        else:
+            return self._value_branch(self._features)
+
+class FCN_MultiV_MultiObj(TorchModelV2, nn.Module):
+    """Generic fully connected network."""
+
+    def __init__(self, obs_space, action_space, num_outputs, model_config,
+                 name, num_decompose=2):
+        TorchModelV2.__init__(self, obs_space, action_space, num_outputs,
+                              model_config, name)
+        nn.Module.__init__(self)
+
+        activation = get_activation_fn(
+            model_config.get("fcnet_activation"), framework="torch")
+        hiddens = model_config.get("fcnet_hiddens")
+        no_final_linear = model_config.get("no_final_linear")
+        self.vf_share_layers = model_config.get("vf_share_layers")
+        self.free_log_std = model_config.get("free_log_std")
+
+        self.num_decompose = num_decompose
+
+        # Generate free-floating bias variables for the second half of
+        # the outputs.
+        if self.free_log_std:
+            assert num_outputs % 2 == 0, (
+                "num_outputs must be divisible by two", num_outputs)
+            num_outputs = num_outputs // 2
+
+        layers = []
+        prev_layer_size = int(np.product(obs_space.shape))
+        self._logits = None
+
+        # Create layers 0 to second-last.
+        for size in hiddens[:-1]:
+            layers.append(
+                SlimFC(
+                    in_size=prev_layer_size,
+                    out_size=size,
+                    initializer=normc_initializer(1.0),
+                    activation_fn=activation))
+            prev_layer_size = size
+
+        # The last layer is adjusted to be of size num_outputs, but it's a
+        # layer with activation.
+        if no_final_linear and num_outputs:
+            layers.append(
+                SlimFC(
+                    in_size=prev_layer_size,
+                    out_size=num_outputs,
+                    initializer=normc_initializer(1.0),
+                    activation_fn=activation))
+            prev_layer_size = num_outputs
+        # Finish the layers with the provided sizes (`hiddens`), plus -
+        # iff num_outputs > 0 - a last linear layer of size num_outputs.
+        else:
+            if len(hiddens) > 0:
+                layers.append(
+                    SlimFC(
+                        in_size=prev_layer_size,
+                        out_size=hiddens[-1],
+                        initializer=normc_initializer(1.0),
+                        activation_fn=activation))
+                prev_layer_size = hiddens[-1]
+            if num_outputs:
+                # self._logits = torch.nn.ModuleList([
+                #     torch.nn.Sequential(
+                #         SlimFC(
+                #             in_size=prev_layer_size,
+                #             out_size=256,
+                #             initializer=normc_initializer(1.0),
+                #             activation_fn=activation),
+                #         SlimFC(
+                #             in_size=256,
+                #             out_size=num_outputs,
+                #             initializer=normc_initializer(1.0),
+                #             activation_fn=None),
+                #     ) for i in range(self.num_decompose)])
+                # self._logits = torch.nn.ModuleList([
+                #     torch.nn.Sequential(
+                #         torch.nn.Linear(prev_layer_size, 256),
+                #         torch.nn.ReLU(),
+                #         torch.nn.Linear(256, num_outputs),
+                #     ) for i in range(self.num_decompose)])
+
+                self._logits = SlimFC(
+                    in_size=prev_layer_size,
+                    out_size=num_outputs*self.num_decompose,
+                    initializer=normc_initializer(0.01),
+                    activation_fn=None)
+            else:
+                raise ValueError("No num_outputs")
+
+        # Layer to add the log std vars to the state-dependent means.
+        if self.free_log_std and self._logits:
+            self._append_free_log_std = AppendBiasLayer(num_outputs)
+
+        self._hidden_layers = nn.Sequential(*layers)
+
+        self._value_branch_separate = None
+        if not self.vf_share_layers:
+            # Build a parallel set of hidden layers for the value net.
+            prev_vf_layer_size = int(np.product(obs_space.shape))
+            self._value_branch_separate = []
+            for size in hiddens:
+                self._value_branch_separate.append(
+                    SlimFC(
+                        in_size=prev_vf_layer_size,
+                        out_size=size,
+                        activation_fn=activation,
+                        initializer=normc_initializer(1.0)))
+                prev_vf_layer_size = size
+            self._value_branch_separate = nn.Sequential(
+                *self._value_branch_separate)
+
+        self._value_branch = SlimFC(
+            in_size=prev_layer_size,
+            out_size=self.num_decompose,
+            initializer=normc_initializer(1.0),
+            activation_fn=None)
+        # Holds the current "base" output (before logits layer).
+        self._features = None
+        # Holds the last input, in case value branch is separate.
+        self._last_flat_in = None
+
+    @override(ModelV2)
+    def __call__(self, input_dict, state=None, seq_lens=None):
+        """Call the model with the given input tensors and state.
+
+        This is the method used by RLlib to execute the forward pass. It calls
+        forward() internally after unpacking nested observation tensors.
+
+        Custom models should override forward() instead of __call__.
+
+        Arguments:
+            input_dict (dict): dictionary of input tensors, including "obs",
+                "prev_action", "prev_reward", "is_training"
+            state (list): list of state tensors with sizes matching those
+                returned by get_initial_state + the batch dimension
+            seq_lens (Tensor): 1d tensor holding input sequence lengths
+
+        Returns:
+            (outputs, state): The model output tensor of size
+                [BATCH, output_spec.size] or a list of tensors corresponding to
+                output_spec.shape_list, and a list of state tensors of
+                [BATCH, state_size_i].
+        """
+
+        restored = input_dict.copy()
+        restored["obs"] = restore_original_dimensions(
+            input_dict["obs"], self.obs_space, self.framework)
+        if len(input_dict["obs"].shape) > 2:
+            restored["obs_flat"] = flatten(input_dict["obs"], self.framework)
+        else:
+            restored["obs_flat"] = input_dict["obs"]
+        with self.context():
+            res = self.forward(restored, state or [], seq_lens)
+        if ((not isinstance(res, list) and not isinstance(res, tuple))
+                or len(res) != 2):
+            raise ValueError(
+                "forward() must return a tuple of (output, state) tensors, "
+                "got {}".format(res))
+        outputs, state = res
+
+        try:
+            shape = outputs.shape
+        except AttributeError:
+            raise ValueError("Output is not a tensor: {}".format(outputs))
+        # else:
+        #     if len(shape) != 2 or int(shape[1]) != self.num_outputs:
+        #         raise ValueError(
+        #             "Expected output shape of [None, {}], got {}".format(
+        #                 self.num_outputs, shape))
+        if not isinstance(state, list):
+            raise ValueError("State output is not a list: {}".format(state))
+
+        self._last_output = outputs
+        return outputs, state
+
+    @override(TorchModelV2)
+    def forward(self, input_dict, state, seq_lens):
+        obs = input_dict["obs_flat"].float()
+        self._last_flat_in = obs.reshape(obs.shape[0], -1)
+        self._features = self._hidden_layers(self._last_flat_in)
+        logits = self._logits(self._features)
+        # logits = [l(self._features) for l in self._logits]
+        if self.free_log_std:
+            raise ValueError("no free_log_std")
+            logits = self._append_free_log_std(logits)
+        # logits = torch.stack(logits, dim=0)                   ## [decompose, None, action]
+        # logits = torch.cat(logits, dim=-1)
         return logits, state
 
     @override(TorchModelV2)

@@ -49,9 +49,17 @@ class QLoss:
         self.loss = torch.mean(
             importance_weights.float().unsqueeze(1) * huber_loss(self.td_error))
         self.stats = {
-            "mean_q": torch.mean(q_t_selected),
-            "min_q": torch.min(q_t_selected),
-            "max_q": torch.max(q_t_selected),
+            "mean_q1": torch.mean(q_t_selected[:, 0]),
+            "min_q1": torch.min(q_t_selected[:, 0]),
+            "max_q1": torch.max(q_t_selected[:, 0]),
+
+            "mean_q2": torch.mean(q_t_selected[:, 1]),
+            "min_q2": torch.min(q_t_selected[:, 1]),
+            "max_q2": torch.max(q_t_selected[:, 1]),
+
+            "mean_q3": torch.mean(q_t_selected[:, 2]),
+            "min_q3": torch.min(q_t_selected[:, 2]),
+            "max_q3": torch.max(q_t_selected[:, 2]),
             "td_error": self.td_error,
             "mean_td_error": torch.mean(self.td_error),
         }
@@ -109,7 +117,8 @@ def build_q_model_and_distribution(policy, obs_space, action_space, config):
         sigma0=config["sigma0"],
         # TODO(sven): Move option to add LayerNorm after each Dense
         #  generically into ModelCatalog.
-        add_layer_norm=add_layer_norm)
+        add_layer_norm=add_layer_norm,
+        decompose_num=3)
 
     policy.q_func_vars = policy.q_model.variables()
 
@@ -127,7 +136,8 @@ def build_q_model_and_distribution(policy, obs_space, action_space, config):
         sigma0=config["sigma0"],
         # TODO(sven): Move option to add LayerNorm after each Dense
         #  generically into ModelCatalog.
-        add_layer_norm=add_layer_norm)
+        add_layer_norm=add_layer_norm,
+        decompose_num=3)
 
     policy.target_q_func_vars = policy.target_q_model.variables()
 
