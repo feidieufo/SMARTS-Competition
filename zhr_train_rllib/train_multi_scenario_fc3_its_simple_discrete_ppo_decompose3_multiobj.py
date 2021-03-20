@@ -142,11 +142,11 @@ def main(args):
             },
             "policy_mapping_fn": lambda agent_id: "default_policy",
         },
-        "model": {
-            "fcnet_hiddens": [256, 256],
-            "fcnet_activation": "relu",
-            "vf_share_layers": False,
-        },
+        # "model": {
+        #     "fcnet_hiddens": [256, 256],
+        #     "fcnet_activation": "relu",
+        #     "vf_share_layers": False,
+        # },
         "framework": "torch",
         "callbacks": {
             "on_episode_start": on_episode_start,

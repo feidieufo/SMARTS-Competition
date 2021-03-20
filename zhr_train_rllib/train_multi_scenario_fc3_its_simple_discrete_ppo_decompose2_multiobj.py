@@ -3,8 +3,8 @@ from pathlib import Path
 
 import ray
 from ray import tune
-from zhr_train_rllib.utils.discrete_space_36_head_benchmark_ogm_9 import agent_spec, OBSERVATION_SPACE, ACTION_SPACE
-from zhr_train_rllib.ppo_policy_modeldist import PPOTorchPolicy
+from zhr_train_rllib.utils.discrete_space_36_head_benchmark_ogm_9_decompose2_multiobj import agent_spec, OBSERVATION_SPACE, ACTION_SPACE
+from zhr_train_rllib.ppo_policy_modeldist_multiv_multiobj import PPOTorchPolicy
 from ray.rllib.models import ModelCatalog
 
 from smarts.env.rllib_hiway_env import RLlibHiWayEnv
@@ -143,7 +143,9 @@ def main(args):
             "policy_mapping_fn": lambda agent_id: "default_policy",
         },
         # "model": {
-        #     "custom_model": "my_fc",
+            # "fcnet_hiddens": [256, 256],
+            # "fcnet_activation": "relu",
+        #     "vf_share_layers": True,
         # },
         "framework": "torch",
         "callbacks": {
@@ -156,6 +158,18 @@ def main(args):
         "num_workers": args.num_workers,
         "horizon": args.horizon,
         "train_batch_size": 10240 * 3,
+
+        # "grad_clip": 0.5,
+
+        "exploration_config": {
+            # The Exploration class to use. In the simplest case, this is the name
+            # (str) of any class present in the `rllib.utils.exploration` package.
+            # You can also provide the python class directly or the full location
+            # of your class (e.g. "ray.rllib.utils.exploration.epsilon_greedy.
+            # EpsilonGreedy").
+            "type": "zhr_train_rllib.stochastic_sampling_multiobj.StochasticSampling",
+            # Add constructor kwargs here (if any).
+        },
 
 
         # "observation_filter": "MeanStdFilter",
@@ -172,7 +186,6 @@ def main(args):
             "num_sgd_iter": 10,
             "sgd_minibatch_size": 1024,
             "gamma": 0.995,
-            # "seed_global": tune.grid_search([10, 20, 30, 40])
         }
     )
 

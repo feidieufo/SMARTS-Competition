@@ -24,6 +24,8 @@ logger = logging.getLogger(__name__)
 from ray.rllib.models.torch.torch_action_dist import TorchDistributionWrapper
 from ray.rllib.models.action_dist import ActionDistribution
 from ray.rllib.utils.annotations import override
+
+decompose = 2
 class TorchCategorical(TorchDistributionWrapper):
     """Wrapper class for PyTorch Categorical distribution."""
 
@@ -33,7 +35,7 @@ class TorchCategorical(TorchDistributionWrapper):
             assert temperature > 0.0, \
                 "Categorical `temperature` must be > 0.0!"
             inputs /= temperature
-        inputs = inputs.view(inputs.shape[0], 9, 3)
+        inputs = inputs.view(inputs.shape[0], 9, decompose)
         inputs = inputs.permute(2, 0, 1)
         super().__init__(inputs, model)
 
@@ -201,7 +203,7 @@ def build_model_and_distribution(policy, obs_space, action_space, config):
         model_interface=FCN_MultiV_MultiObj,
         name="ac",
         model_config=config["model"],
-        num_decompose=3)
+        num_decompose=decompose)
 
     return model, dist
 
@@ -269,7 +271,7 @@ def postprocess_ppo_gae(policy,
 
     completed = sample_batch["dones"][-1]
     if completed:
-        last_r = torch.tensor([0.0]*3)
+        last_r = torch.tensor([0.0]*decompose)
     else:
         next_state = []
         for i in range(policy.num_state_tensors()):

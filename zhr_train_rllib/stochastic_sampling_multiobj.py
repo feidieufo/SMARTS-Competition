@@ -67,8 +67,8 @@ class StochasticSampling(Exploration):
             if not valid.bool().any():
                 valid = last
                 break
-        inputs_logits = inputs.mean(dim=0)
-        x = torch.where(valid!=0.0, inputs_logits, torch.tensor(0.0, dtype=torch.float32))
+        inputs_logits = inputs[i]
+        x = torch.where(valid!=0, inputs_logits, torch.tensor(0.0, dtype=torch.float32))
         pos = x!=0.0
         xx = x[pos]
         dist = torch.distributions.categorical.Categorical(logits=xx)
