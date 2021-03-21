@@ -3,7 +3,7 @@ from pathlib import Path
 
 import ray
 from ray import tune
-from zhr_train_rllib.utils.discrete_space_36_head_benchmark_ogm_9_decompose3_multiobj import agent_spec, OBSERVATION_SPACE, ACTION_SPACE
+from zhr_train_rllib.utils.discrete_space_36_head_benchmark_ogm_9_decompose2_multiobj import agent_spec, OBSERVATION_SPACE, ACTION_SPACE
 from zhr_train_rllib.dqn_policy_decompose import DQNTorchPolicy
 from ray.rllib.models import ModelCatalog
 
@@ -191,7 +191,7 @@ def main(args):
     tune_config.update(
         {
             "gamma": 0.995,
-            "decompose_num": 3,
+            "decompose_num": 2,
             # "seed_global": tune.grid_search([10, 20, 30, 40])
         }
     )

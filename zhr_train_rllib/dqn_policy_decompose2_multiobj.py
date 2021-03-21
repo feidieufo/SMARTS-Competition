@@ -8,19 +8,84 @@ from .dqn_model_decompose import DQNTorchModel
 from ray.rllib.agents.dqn.simple_q_torch_policy import TargetNetworkMixin
 from ray.rllib.policy.sample_batch import SampleBatch
 from ray.rllib.models.catalog import ModelCatalog
-from ray.rllib.models.torch.torch_action_dist import TorchCategorical
+
 from ray.rllib.policy.torch_policy import LearningRateSchedule
 from ray.rllib.policy.torch_policy_template import build_torch_policy
 from ray.rllib.utils.error import UnsupportedSpaceException
 from ray.rllib.utils.exploration.parameter_noise import ParameterNoise
 from ray.rllib.utils.torch_ops import huber_loss, reduce_mean_ignore_inf
 from ray.rllib.utils import try_import_torch
+import random
 
 torch, nn = try_import_torch()
 F = None
 if nn:
     F = nn.functional
 
+from ray.rllib.models.torch.torch_action_dist import TorchDistributionWrapper
+from ray.rllib.models.action_dist import ActionDistribution
+from ray.rllib.utils.annotations import override
+class TorchMultiObjCategorical(TorchDistributionWrapper):
+    """MultiCategorical distribution for MultiDiscrete action spaces."""
+
+    @override(TorchDistributionWrapper)
+    def __init__(self, inputs, model):
+        # super().__init__(inputs, model)
+        # If input_lens is np.ndarray or list, force-make it a tuple.
+        self.inputs = inputs
+        self.model = model
+        self.cats = [
+            torch.distributions.categorical.Categorical(logits=input_)
+            for input_ in inputs
+        ]
+
+    @override(TorchDistributionWrapper)
+    def sample(self):
+        arr = [cat.sample() for cat in self.cats]
+        self.last_sample = torch.stack(arr, dim=1)
+        return self.last_sample
+
+    @override(ActionDistribution)
+    def deterministic_sample(self):
+        arr = [torch.argmax(cat.probs, -1) for cat in self.cats]
+        self.last_sample = torch.stack(arr, dim=1)
+        return self.last_sample
+
+    @override(TorchDistributionWrapper)
+    def logp(self, actions):
+        # # If tensor is provided, unstack it into list.
+        if isinstance(actions, torch.Tensor):
+            actions = torch.unbind(actions, dim=1)
+        logps = torch.stack(
+            [cat.log_prob(act) for cat, act in zip(self.cats, actions)])
+        return torch.sum(logps, dim=0)
+
+    @override(ActionDistribution)
+    def multi_entropy(self):
+        return torch.stack([cat.entropy() for cat in self.cats], dim=1)
+
+    @override(TorchDistributionWrapper)
+    def entropy(self):
+        return torch.sum(self.multi_entropy(), dim=1)
+
+    @override(ActionDistribution)
+    def multi_kl(self, other):
+        return torch.stack(
+            [
+                torch.distributions.kl.kl_divergence(cat, oth_cat)
+                for cat, oth_cat in zip(self.cats, other.cats)
+            ],
+            dim=1,
+        )
+
+    @override(TorchDistributionWrapper)
+    def kl(self, other):
+        return torch.sum(self.multi_kl(other), dim=1)
+
+    @staticmethod
+    @override(ActionDistribution)
+    def required_model_output_shape(action_space, model_config):
+        return np.sum(action_space.nvec)
 
 class QLoss:
     def __init__(self,
@@ -49,17 +114,14 @@ class QLoss:
         self.loss = torch.mean(
             importance_weights.float().unsqueeze(1) * huber_loss(self.td_error))
         self.stats = {
-            "mean_q1": torch.mean(q_t_selected[:, 0]),
-            "min_q1": torch.min(q_t_selected[:, 0]),
-            "max_q1": torch.max(q_t_selected[:, 0]),
+            "mean_q1": torch.mean(q_t_selected[:,0]),
+            "min_q1": torch.min(q_t_selected[:,0]),
+            "max_q1": torch.max(q_t_selected[:,0]),
 
-            "mean_q2": torch.mean(q_t_selected[:, 1]),
-            "min_q2": torch.min(q_t_selected[:, 1]),
-            "max_q2": torch.max(q_t_selected[:, 1]),
+            "mean_q2": torch.mean(q_t_selected[:,1]),
+            "min_q2": torch.min(q_t_selected[:,1]),
+            "max_q2": torch.max(q_t_selected[:,1]),
 
-            "mean_q3": torch.mean(q_t_selected[:, 2]),
-            "min_q3": torch.min(q_t_selected[:, 2]),
-            "max_q3": torch.max(q_t_selected[:, 2]),
             "td_error": self.td_error,
             "mean_td_error": torch.mean(self.td_error),
         }
@@ -141,7 +203,7 @@ def build_q_model_and_distribution(policy, obs_space, action_space, config):
 
     policy.target_q_func_vars = policy.target_q_model.variables()
 
-    return policy.q_model, TorchCategorical
+    return policy.q_model, TorchMultiObjCategorical
 
 
 def get_distribution_inputs_and_class(policy,
@@ -152,12 +214,42 @@ def get_distribution_inputs_and_class(policy,
                                       is_training=False,
                                       **kwargs):
     q_vals = compute_q_values(policy, model, obs_batch, explore, is_training)
-    q_vals = sum(q_vals)
-    q_vals = q_vals[0] if isinstance(q_vals, tuple) else q_vals
+    # q_vals = sum(q_vals)
+    # q_vals = q_vals[0] if isinstance(q_vals, tuple) else q_vals
 
     policy.q_values = q_vals
-    return policy.q_values, TorchCategorical, []  # state-out
+    return policy.q_values, TorchMultiObjCategorical, []  # state-out
 
+def choose_tend_action(q_values):
+    threshold = -0.5
+    action_set_sub = [(q >= (torch.max(q, dim=-1)[0] + threshold).unsqueeze(1)).int() for q in q_values]
+    action_set = [torch.where(q >= torch.max(q) + threshold)[1] for q in q_values]
+    choice = random.randrange(len(action_set))
+    valid = torch.ones_like(q_values[0]).int()
+
+    for j in range(q_values[0].shape[0]):
+        cur_valid = valid[j].clone().detach()
+        last_valid = cur_valid.clone().detach()
+        for (i,a_set) in enumerate(action_set_sub):
+            cur_valid = cur_valid & a_set[j]
+
+            if not cur_valid.bool().any():
+                valid_q = q_values[i][j]*last_valid
+                valid_q = torch.where(valid_q == 0.0, valid_q-10000.0, valid_q)
+                a = torch.argmax(valid_q)
+                cur_valid[a] = 1
+                break
+            last_valid = cur_valid
+        valid[j] = cur_valid
+
+
+    valid_q = valid * q_values[-1]
+    valid_q = torch.where(valid_q == 0.0, valid_q-10000.0, valid_q)
+    a = torch.argmax(valid_q, dim=-1)
+    return a
+
+    # a = torch.multinomial(valid.float(), num_samples=1)
+    # return a.squeeze(dim=1)
 
 def build_q_losses(policy, model, _, train_batch):
     config = policy.config
@@ -191,16 +283,17 @@ def build_q_losses(policy, model, _, train_batch):
             train_batch[SampleBatch.NEXT_OBS],
             explore=False,
             is_training=True)
-        q_tp1_using_online_net = sum(q_tp1_using_online_net)
-        q_tp1_best_using_online_net = torch.argmax(q_tp1_using_online_net, 1)
+        # q_tp1_using_online_net = sum(q_tp1_using_online_net)
+        # q_tp1_best_using_online_net = torch.argmax(q_tp1_using_online_net, 1)
+        q_tp1_best_using_online_net = choose_tend_action(q_tp1_using_online_net)
         q_tp1_best_one_hot_selection = F.one_hot(q_tp1_best_using_online_net,
                                                  policy.action_space.n)
         # q_tp1_best = torch.sum(q_tp1 * q_tp1_best_one_hot_selection, 1)
         q_tp1_best = [torch.sum(q * q_tp1_best_one_hot_selection, 1) for q in q_tp1s]
     else:
-        qtp1 = sum(q_tp1s)
+        # qtp1 = sum(q_tp1s)
         q_tp1_best_one_hot_selection = F.one_hot(
-            torch.argmax(q_tp1, 1), policy.action_space.n)
+            choose_tend_action(q_tp1s), policy.action_space.n)
         # q_tp1_best = torch.sum(q_tp1 * q_tp1_best_one_hot_selection, 1)
         q_tp1_best = [torch.sum(q * q_tp1_best_one_hot_selection, 1) for q in q_tp1s]
 
