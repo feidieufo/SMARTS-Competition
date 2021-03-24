@@ -169,6 +169,9 @@ def main(args):
             # EpsilonGreedy").
             "type": "zhr_train_rllib.stochastic_sampling_multiobj.StochasticSampling",
             # Add constructor kwargs here (if any).
+            "initial_epsilon": 1.0,
+            "final_epsilon": 0.5,
+            "epsilon_timesteps": 200000,  # Timesteps over which to anneal epsilon.
         },
 
 

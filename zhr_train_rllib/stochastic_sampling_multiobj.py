@@ -5,8 +5,12 @@ from ray.rllib.models.modelv2 import ModelV2
 from ray.rllib.utils import try_import_tree
 from ray.rllib.utils.annotations import override
 from ray.rllib.utils.exploration.exploration import Exploration
+from ray.rllib.utils.from_config import from_config
+from ray.rllib.utils.schedules import Schedule, PiecewiseSchedule
+import random
+import math
 from ray.rllib.utils.framework import try_import_tf, try_import_torch, \
-    TensorType
+    TensorType, get_variable
 
 tf = try_import_tf()
 torch, _ = try_import_torch()
@@ -23,6 +27,10 @@ class StochasticSampling(Exploration):
     """
 
     def __init__(self, action_space, *, framework: str, model: ModelV2,
+                 initial_epsilon=1.0,
+                 final_epsilon=0.05,
+                 epsilon_timesteps=int(1e5),
+                 epsilon_schedule=None,
                  **kwargs):
         """Initializes a StochasticSampling Exploration object.
 
@@ -34,6 +42,17 @@ class StochasticSampling(Exploration):
         super().__init__(
             action_space, model=model, framework=framework, **kwargs)
 
+        self.epsilon_schedule = \
+            from_config(Schedule, epsilon_schedule, framework=framework) or \
+            PiecewiseSchedule(
+                endpoints=[
+                    (0, initial_epsilon), (epsilon_timesteps, final_epsilon)],
+                outside_value=final_epsilon,
+                framework=self.framework)
+
+        self.last_timestep = get_variable(
+            0, framework=framework, tf_name="timestep")
+
     @override(Exploration)
     def get_exploration_action(self,
                                *,
@@ -42,19 +61,20 @@ class StochasticSampling(Exploration):
                                explore: bool = True):
         if self.framework == "torch":
             return self._get_torch_exploration_action(action_distribution,
-                                                      explore)
+                                                      explore, timestep)
         else:
             raise ValueError("Torch version does not support "
                     "multiobj stochastic_sampling yet!")
 
 
-    @staticmethod
-    def _get_torch_exploration_action(action_dist, explore):
+    def _get_torch_exploration_action(self, action_dist, explore, timestep):
+        self.last_timestep = timestep
         inputs = action_dist.inputs
         obj_num = inputs.shape[0]
         assert inputs.shape[1]==1
         action_p = torch.softmax(inputs, dim=-1)
-        threshold = -1
+        epsilon = self.epsilon_schedule(self.last_timestep)
+        threshold = -epsilon
         a = torch.max(action_p[0], dim=-1)
 
         y = (action_p[0] >=  torch.max(action_p[0], dim=-1)[0])
@@ -79,6 +99,21 @@ class StochasticSampling(Exploration):
             action = dist.sample()
             action = label[action]
             logp = action_dist.logp(action)
+            # epsilon = self.epsilon_schedule(self.last_timestep)
+            # c = random.uniform(0, 1)
+            # pos = random.randint(0, 1)
+            # d = torch.distributions.categorical.Categorical(logits=inputs[pos][0])
+            # if c < epsilon:
+            #     action = d.sample()
+            #     logp = action_dist.logp(action)
+            #     logp1 = math.log(epsilon*1.0/inputs.shape[0])
+            #     logp = logp + logp1
+            # else:
+            #     action = dist.sample()
+            #     action = label[action]
+            #     logp = action_dist.logp(action)
+            #     logp1 = math.log(1-epsilon)
+            #     logp = logp + logp1
         else:
             action = dist.deterministic_sample()
             action = label[action]
