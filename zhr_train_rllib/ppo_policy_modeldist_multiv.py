@@ -24,6 +24,8 @@ logger = logging.getLogger(__name__)
 from ray.rllib.models.torch.torch_action_dist import TorchDistributionWrapper
 from ray.rllib.models.action_dist import ActionDistribution
 from ray.rllib.utils.annotations import override
+
+decompose = 3
 class TorchCategorical(TorchDistributionWrapper):
     """Wrapper class for PyTorch Categorical distribution."""
 
@@ -188,7 +190,7 @@ def build_model_and_distribution(policy, obs_space, action_space, config):
         model_interface=FCN_MultiV,
         name="ac",
         model_config=config["model"],
-        num_v=3)
+        num_v=decompose)
 
     return model, dist
 
@@ -310,7 +312,7 @@ def postprocess_ppo_gae(policy,
 
     completed = sample_batch["dones"][-1]
     if completed:
-        last_r = torch.tensor([0.0]*3)
+        last_r = torch.tensor([0.0]*decompose)
     else:
         next_state = []
         for i in range(policy.num_state_tensors()):

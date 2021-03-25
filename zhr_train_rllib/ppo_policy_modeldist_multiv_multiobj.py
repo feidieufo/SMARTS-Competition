@@ -152,6 +152,7 @@ class PPOLoss:
         # Make loss functions.
         logp_ratio = torch.exp(
             curr_action_dist.logp(actions) - prev_actions_logp)
+        self.action_dist_prob = curr_action_dist.dist.probs.mean(dim=1)
         # logp_ratio = logp_ratio[:,0]
         # logp_ratio = logp_ratio.mean(dim=-1)
         action_kl = prev_dist.kl(curr_action_dist)
@@ -333,6 +334,24 @@ def setup_mixins(policy, obs_space, action_space, config):
                                   config["entropy_coeff_schedule"])
     LearningRateSchedule.__init__(policy, config["lr"], config["lr_schedule"])
 
+def apply_grad_clipping(policy, optimizer, loss):
+    info = {}
+    if policy.config["grad_clip"]:
+        for param_group in optimizer.param_groups:
+            # Make sure we only pass params with grad != None into torch
+            # clip_grad_norm_. Would fail otherwise.
+            params = list(
+                filter(lambda p: p.grad is not None, param_group["params"]))
+            if params:
+                grad_gnorm = nn.utils.clip_grad_norm_(
+                    params, policy.config["grad_clip"])
+                if isinstance(grad_gnorm, torch.Tensor):
+                    grad_gnorm = grad_gnorm.cpu().numpy()
+                info["grad_gnorm"] = grad_gnorm
+    for (i,probs) in enumerate(policy.loss_obj.action_dist_prob):
+        for (j, prob) in enumerate(probs):
+            info["policy_probs" + str(i) + "_" + str(j)] = prob.detach().numpy()
+    return info
 
 PPOTorchPolicy = build_torch_policy(
     name="PPOTorchPolicy",
