@@ -223,8 +223,6 @@ def get_distribution_inputs_and_class(policy,
 def choose_tend_action(q_values):
     threshold = -0.5
     action_set_sub = [(q >= (torch.max(q, dim=-1)[0] + threshold).unsqueeze(1)).int() for q in q_values]
-    action_set = [torch.where(q >= torch.max(q) + threshold)[1] for q in q_values]
-    choice = random.randrange(len(action_set))
     valid = torch.ones_like(q_values[0]).int()
 
     for j in range(q_values[0].shape[0]):
@@ -285,17 +283,24 @@ def build_q_losses(policy, model, _, train_batch):
             is_training=True)
         # q_tp1_using_online_net = sum(q_tp1_using_online_net)
         # q_tp1_best_using_online_net = torch.argmax(q_tp1_using_online_net, 1)
-        q_tp1_best_using_online_net = choose_tend_action(q_tp1_using_online_net)
-        q_tp1_best_one_hot_selection = F.one_hot(q_tp1_best_using_online_net,
-                                                 policy.action_space.n)
-        # q_tp1_best = torch.sum(q_tp1 * q_tp1_best_one_hot_selection, 1)
-        q_tp1_best = [torch.sum(q * q_tp1_best_one_hot_selection, 1) for q in q_tp1s]
+        q_tp1_best_one_hot_selection = []
+        for i in range(len(q_tp1_using_online_net)):
+            q = q_tp1_using_online_net[0:i+1]
+            q_tp1_best_using_online_net = choose_tend_action(q)
+            a = F.one_hot(q_tp1_best_using_online_net,  policy.action_space.n)
+            q_tp1_best_one_hot_selection.append(a)
+
+        q_tp1_best = [torch.sum(q * a, 1) for (q,a) in zip(q_tp1s, q_tp1_best_one_hot_selection)]
     else:
         # qtp1 = sum(q_tp1s)
-        q_tp1_best_one_hot_selection = F.one_hot(
-            choose_tend_action(q_tp1s), policy.action_space.n)
+        q_tp1_best_one_hot_selection = []
+        for i in range(len(q_tp1_using_online_net)):
+            q = q_tp1s[0:i+1]
+            q_tp1_best_using_online_net = choose_tend_action(q)
+            a = F.one_hot(q_tp1_best_using_online_net,  policy.action_space.n)
+            q_tp1_best_one_hot_selection.append(a)
         # q_tp1_best = torch.sum(q_tp1 * q_tp1_best_one_hot_selection, 1)
-        q_tp1_best = [torch.sum(q * q_tp1_best_one_hot_selection, 1) for q in q_tp1s]
+        q_tp1_best = [torch.sum(q * a, 1) for (q,a) in zip(q_tp1s, q_tp1_best_one_hot_selection)]
 
     q_t_selected = torch.stack(q_t_selected, dim=1)
     q_tp1_best = torch.stack(q_tp1_best, dim=1)
