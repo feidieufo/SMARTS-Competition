@@ -175,6 +175,16 @@ def main(args):
         }
     )
 
+    num_samples = 4
+    if not args.no_debug:
+        tune_config.update(
+            {
+                "train_batch_size": 102 * 3,
+                "sgd_minibatch_size": 10,
+            }
+        )
+        num_samples = 1
+
     # ====================================
     # init log and checkpoint dir_info
     # ====================================
@@ -205,7 +215,7 @@ def main(args):
         max_failures=1000,
         export_formats=["model", "checkpoint"],
         config=tune_config,
-        num_samples=4,
+        num_samples=num_samples,
     )
 
     print(analysis.dataframe().head())
