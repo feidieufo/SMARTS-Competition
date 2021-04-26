@@ -4,7 +4,7 @@ from pathlib import Path
 import ray
 from ray import tune
 from zhr_train_rllib.utils.discrete_space_36_head_benchmark_ogm_9_decompose2_multiobj import agent_spec, OBSERVATION_SPACE, ACTION_SPACE
-from zhr_train_rllib.dqn_policy_decompose import DQNTorchPolicy
+from zhr_train_rllib.dqn_policy_decompose_hra import DQNTorchPolicy
 from ray.rllib.models import ModelCatalog
 
 from smarts.env.rllib_hiway_env import RLlibHiWayEnv
@@ -196,6 +196,17 @@ def main(args):
         }
     )
 
+    num_samples = 4
+    if not args.no_debug:
+        tune_config.update(
+            {
+                "learning_starts": 1000,
+                "buffer_size": 5000,
+                "timesteps_per_iteration": 1000,                
+            }
+        )    
+        num_samples = 1  
+
     # ====================================
     # init log and checkpoint dir_info
     # ====================================
@@ -227,7 +238,7 @@ def main(args):
         max_failures=1000,
         export_formats=["model", "checkpoint"],
         config=tune_config,
-        num_samples=4,
+        num_samples=num_samples,
     )
 
     print(analysis.dataframe().head())
