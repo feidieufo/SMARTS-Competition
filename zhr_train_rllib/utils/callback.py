@@ -15,7 +15,7 @@ def on_episode_step(info):
     dis_from_center = []
     for id, obs in episode._agent_to_last_raw_obs.items():
         agent_speeds.append(obs["speed"])
-        dis_from_center.append(obs["distance_from_center"])
+        dis_from_center.append(np.abs(obs["distance_from_center"]))
     episode.user_data["ego_speed"].append(np.mean(agent_speeds))
     episode.user_data["dis_from_center"].append(np.mean(dis_from_center))
 
