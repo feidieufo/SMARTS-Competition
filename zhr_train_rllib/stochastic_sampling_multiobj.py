@@ -97,8 +97,9 @@ class StochasticSampling(Exploration):
 
         if explore:
             action = dist.sample()
+            logp = dist.log_prob(action)
+            logp = logp * torch.ones(size=(inputs.shape[1], inputs.shape[0]), dtype=torch.float32)
             action = label[action]
-            logp = action_dist.logp(action)
             # epsilon = self.epsilon_schedule(self.last_timestep)
             # c = random.uniform(0, 1)
             # pos = random.randint(0, 1)

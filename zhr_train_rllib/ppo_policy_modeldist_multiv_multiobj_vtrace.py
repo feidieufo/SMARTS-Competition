@@ -53,6 +53,14 @@ class TorchCategorical(TorchDistributionWrapper):
         self.last_sample = self.dist.probs.argmax(dim=1)
         return self.last_sample
 
+    @override(TorchDistributionWrapper)
+    def entropy(self):
+        return super().entropy().mean(0)             ## if dist [obj,batch,probs] need mean(0)
+
+    @override(TorchDistributionWrapper)
+    def kl(self, other):
+        return super().kl(other).mean(0)             ## if dist [obj,batch,probs] need mean(0)
+
     @staticmethod
     @override(ActionDistribution)
     def required_model_output_shape(action_space, model_config):
