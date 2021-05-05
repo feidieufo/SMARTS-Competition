@@ -195,6 +195,8 @@ class PPOLoss:
                                      entropy_coeff * curr_entropy)
         self.loss = loss
 
+        self.v = value_fn        
+
 def build_model_and_distribution(policy, obs_space, action_space, config):
 
     if isinstance(action_space, Discrete):
@@ -264,6 +266,14 @@ def kl_and_loss_stats(policy, train_batch):
         "kl": policy.loss_obj.mean_kl,
         "entropy": policy.loss_obj.mean_entropy,
         "entropy_coeff": policy.entropy_coeff,
+    
+        "v1max": torch.max(policy.loss_obj.v[:, 0]),
+        "v1min": torch.min(policy.loss_obj.v[:, 0]),
+        "v1mean": torch.mean(policy.loss_obj.v[:, 0]),
+
+        "v2max": torch.max(policy.loss_obj.v[:, 1]),
+        "v2min": torch.min(policy.loss_obj.v[:, 1]),
+        "v2mean": torch.mean(policy.loss_obj.v[:, 1]),
     }
 
 
