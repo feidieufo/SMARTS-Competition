@@ -44,6 +44,14 @@ class TorchCategorical(TorchDistributionWrapper):
         self.last_sample = self.dist.probs.argmax(dim=1)
         return self.last_sample
 
+    @override(TorchDistributionWrapper)
+    def entropy(self):
+        return super().entropy()             ## if dist [obj,batch,probs] need mean(0)
+
+    @override(TorchDistributionWrapper)
+    def kl(self, other):
+        return super().kl(other)             ## if dist [obj,batch,probs] need mean(0)
+
     @staticmethod
     @override(ActionDistribution)
     def required_model_output_shape(action_space, model_config):
@@ -142,7 +150,7 @@ class PPOLoss:
         # Make loss functions.
         logp_ratio = torch.exp(
             curr_action_dist.logp(actions) - prev_actions_logp)
-        self.action_dist_prob = curr_action_dist.dist.probs.mean(0)
+        self.action_dist_prob = curr_action_dist.dist.probs.mean(-2)
         action_kl = prev_dist.kl(curr_action_dist)
         self.mean_kl = reduce_mean_valid(action_kl)
 
@@ -173,6 +181,8 @@ class PPOLoss:
                                      cur_kl_coeff * action_kl -
                                      entropy_coeff * curr_entropy)
         self.loss = loss
+
+        self.v = value_fn
 
 def build_model_and_distribution(policy, obs_space, action_space, config):
 
@@ -296,6 +306,14 @@ def kl_and_loss_stats(policy, train_batch):
         "kl": policy.loss_obj.mean_kl,
         "entropy": policy.loss_obj.mean_entropy,
         "entropy_coeff": policy.entropy_coeff,
+
+        "v1max": torch.max(policy.loss_obj.v[:, 0]),
+        "v1min": torch.min(policy.loss_obj.v[:, 0]),
+        "v1mean": torch.mean(policy.loss_obj.v[:, 0]),
+
+        "v2max": torch.max(policy.loss_obj.v[:, 1]),
+        "v2min": torch.min(policy.loss_obj.v[:, 1]),
+        "v2mean": torch.mean(policy.loss_obj.v[:, 1]),
     }
 
 

@@ -152,7 +152,8 @@ def main(args):
         "horizon": args.horizon,
 
         "learning_starts": 10000,
-        "buffer_size": 50000,
+        "buffer_size": 1000000,
+        "target_network_update_freq": 10000,
         "rollout_fragment_length": 4,
         "train_batch_size": 32,
         

@@ -74,11 +74,14 @@ class StochasticSampling(Exploration):
         assert inputs.shape[1]==1
         action_p = torch.softmax(inputs, dim=-1)
         epsilon = self.epsilon_schedule(self.last_timestep)
-        threshold = -epsilon
-        a = torch.max(action_p[0], dim=-1)
+        threshold = [-epsilon, -1]
+
+        explorei = obj_num
+        if random.random() < epsilon:
+            explorei = random.randrange(obj_num)
 
         y = (action_p[0] >=  torch.max(action_p[0], dim=-1)[0])
-        action_p_sup = [(action_p[i] >=  torch.max(action_p[i], dim=-1)[0] + threshold).int() for i in range(obj_num)]
+        action_p_sup = [(action_p[i] >=  torch.max(action_p[i], dim=-1)[0] + threshold[i]).int() for i in range(obj_num)]
         valid = torch.ones_like(action_p_sup[0]).int()
         for (i,action) in enumerate(action_p_sup):
             last = valid
@@ -87,6 +90,11 @@ class StochasticSampling(Exploration):
             if not valid.bool().any():
                 valid = last
                 break
+
+            if explorei == i:
+                valid = last
+                break
+
         inputs_logits = inputs[i]
         x = torch.where(valid!=0, inputs_logits, torch.tensor(0.0, dtype=torch.float32))
         pos = x!=0.0
@@ -100,21 +108,7 @@ class StochasticSampling(Exploration):
             logp = dist.log_prob(action)
             logp = logp * torch.ones(size=(inputs.shape[1], inputs.shape[0]), dtype=torch.float32)
             action = label[action]
-            # epsilon = self.epsilon_schedule(self.last_timestep)
-            # c = random.uniform(0, 1)
-            # pos = random.randint(0, 1)
-            # d = torch.distributions.categorical.Categorical(logits=inputs[pos][0])
-            # if c < epsilon:
-            #     action = d.sample()
-            #     logp = action_dist.logp(action)
-            #     logp1 = math.log(epsilon*1.0/inputs.shape[0])
-            #     logp = logp + logp1
-            # else:
-            #     action = dist.sample()
-            #     action = label[action]
-            #     logp = action_dist.logp(action)
-            #     logp1 = math.log(1-epsilon)
-            #     logp = logp + logp1
+
         else:
             action = dist.deterministic_sample()
             action = label[action]

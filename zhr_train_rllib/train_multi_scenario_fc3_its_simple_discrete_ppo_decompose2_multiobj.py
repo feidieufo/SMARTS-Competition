@@ -189,6 +189,9 @@ def main(args):
             "num_sgd_iter": 10,
             "sgd_minibatch_size": 1024,
             "gamma": 0.995,
+
+            "entropy_coeff": 0.01,
+            "kl_coeff": 0.0,
         }
     )
 
