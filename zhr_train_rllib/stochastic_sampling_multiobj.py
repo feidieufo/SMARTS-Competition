@@ -108,7 +108,25 @@ class StochasticSampling(Exploration):
             logp = dist.log_prob(action)
             logp = logp * torch.ones(size=(inputs.shape[1], inputs.shape[0]), dtype=torch.float32)
             action = label[action]
+<<<<<<< HEAD
 
+=======
+            # epsilon = self.epsilon_schedule(self.last_timestep)
+            # c = random.uniform(0, 1)
+            # pos = random.randint(0, 1)
+            # d = torch.distributions.categorical.Categorical(logits=inputs[pos][0])
+            # if c < epsilon:
+            #     action = d.sample()
+            #     logp = action_dist.logp(action)
+            #     logp1 = math.log(epsilon*1.0/inputs.shape[0])
+            #     logp = logp + logp1
+            # else:
+            #     action = dist.sample()
+            #     action = label[action]
+            #     logp = action_dist.logp(action)
+            #     logp1 = math.log(1-epsilon)
+            #     logp = logp + logp1
+>>>>>>> d3447b689017c062f815809107c821f375cded21
         else:
             action = dist.deterministic_sample()
             action = label[action]
