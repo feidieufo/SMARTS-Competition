@@ -16,6 +16,7 @@ from ray.rllib.utils.exploration.parameter_noise import ParameterNoise
 from ray.rllib.utils.torch_ops import huber_loss, reduce_mean_ignore_inf
 from ray.rllib.utils import try_import_torch
 import random
+import numpy as np
 
 torch, nn = try_import_torch()
 F = None
@@ -108,6 +109,7 @@ class QLoss:
         
         # compute RHS of bellman equation
         q_t_selected_target = rewards + gamma**n_step * q_tp1_best_masked
+        # q_t_selected_target = torch.clamp(q_t_selected_target, -1, 1)
 
         # compute the error (potentially clipped)
         self.td_error = q_t_selected - q_t_selected_target.detach()
@@ -221,7 +223,7 @@ def get_distribution_inputs_and_class(policy,
     return policy.q_values, TorchMultiObjCategorical, []  # state-out
 
 def choose_tend_action(q_values):
-    threshold = -0.5
+    threshold = -0.1
     action_set_sub = [(q >= (torch.max(q, dim=-1)[0] + threshold).unsqueeze(1)).int() for q in q_values]
     valid = torch.ones_like(q_values[0]).int()
 
@@ -294,7 +296,7 @@ def build_q_losses(policy, model, _, train_batch):
     else:
         # qtp1 = sum(q_tp1s)
         q_tp1_best_one_hot_selection = []
-        for i in range(len(q_tp1_using_online_net)):
+        for i in range(len(q_tp1s)):
             q = q_tp1s[0:i+1]
             q_tp1_best_using_online_net = choose_tend_action(q)
             a = F.one_hot(q_tp1_best_using_online_net,  policy.action_space.n)

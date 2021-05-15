@@ -43,6 +43,7 @@ class QLoss:
         
         # compute RHS of bellman equation
         q_t_selected_target = rewards + gamma**n_step * q_tp1_best_masked
+        q_t_selected_target = torch.clamp(q_t_selected_target, -1, 1)
 
         # compute the error (potentially clipped)
         self.td_error = q_t_selected - q_t_selected_target.detach()
@@ -195,7 +196,7 @@ def build_q_losses(policy, model, _, train_batch):
         # q_tp1_best = torch.sum(q_tp1 * q_tp1_best_one_hot_selection, 1)
         q_tp1_best = [torch.sum(q * qa, 1) for (q, qa) in zip(q_tp1s, q_tp1_best_one_hot_selection)]
     else:
-        qtp1 = [torch.argmax(q, 1) for q in qtp1s]
+        qtp1 = [torch.argmax(q, 1) for q in q_tp1s]
         q_tp1_best_one_hot_selection = [F.one_hot(
             torch.argmax(q, 1), policy.action_space.n) for q in qtp1]
 
