@@ -15,6 +15,7 @@ from ray.rllib.utils import try_import_torch
 from .fc_model import FullyConnectedNetwork
 from ray.rllib.models.catalog import ModelCatalog
 from gym.spaces import Discrete
+import numpy as np
 
 torch, nn = try_import_torch()
 

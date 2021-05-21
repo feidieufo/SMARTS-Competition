@@ -657,7 +657,9 @@ def reward_adapter(env_obs, env_reward):
     total_reward = np.sum([1.0 * env_reward])
     total_penalty = np.sum([0.1 * center_penalty, 1*steering_penalty, 1 * crash_penalty])
 
-    return (total_reward + total_penalty) / 200.0
+    # return (total_reward + total_penalty) / 200.0
+    # return env_reward / 200.0
+    return env_reward/200.0 + 0.1*center_penalty/200.0
 
 
 def action_adapter(model_action):

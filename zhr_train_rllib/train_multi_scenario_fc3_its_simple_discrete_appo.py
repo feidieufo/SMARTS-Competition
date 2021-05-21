@@ -7,6 +7,7 @@ from zhr_train_rllib.utils.discrete_space_36_head_benchmark_ogm_9 import agent_s
 from zhr_train_rllib.appo_policy_modellist import AsyncPPOTorchPolicy
 from ray.rllib.models import ModelCatalog
 
+from ray.rllib.agents import impala
 from smarts.env.rllib_hiway_env import RLlibHiWayEnv
 from .utils.callback import (
     on_episode_start,
@@ -47,12 +48,14 @@ scenario_paths = [(
 print(f"training on {scenario_paths}")
 
 from ray.rllib.agents.trainer_template import build_trainer
-from ray.rllib.agents.ppo.appo import DEFAULT_CONFIG, validate_config
-PPOTrainer = build_trainer(
-    name="PPO_TORCH",
+from ray.rllib.agents.ppo.appo import DEFAULT_CONFIG, add_target_callback, initialize_target
+APPOTrainer = impala.ImpalaTrainer.with_updates(
+    name="APPO_TORCH",
     default_config=DEFAULT_CONFIG,
     default_policy=AsyncPPOTorchPolicy,
-    validate_config=validate_config)
+    validate_config=add_target_callback,
+    get_policy_class=None,
+    after_init=initialize_target)
 
 def parse_args():
     parser = argparse.ArgumentParser("train on multi scenarios")
@@ -157,6 +160,7 @@ def main(args):
         "num_workers": args.num_workers,
         "horizon": args.horizon,
         "train_batch_size": 750,
+        "rollout_fragment_length": 50,
 
         # "grad_clip": 0.5,
 
@@ -175,7 +179,7 @@ def main(args):
             "num_sgd_iter": 2,
             "gamma": 0.995,
 
-            "entropy_coeff": 0.01,
+            "entropy_coeff": 0,
             "kl_coeff": 0.0,
             "vtrace": True
         }
@@ -185,7 +189,7 @@ def main(args):
     if not args.no_debug:
         tune_config.update(
             {
-                "train_batch_size": 102 * 3,
+                "train_batch_size": 750,
                 # "sgd_minibatch_size": 10,
             }
         )
@@ -195,7 +199,7 @@ def main(args):
     # init log and checkpoint dir_info
     # ====================================
     experiment_name = EXPERIMENT_NAME.format(
-        scenario=args.exper, algorithm="PPO", n_agent=1,
+        scenario=args.exper, algorithm="APPO", n_agent=1,
     )
 
     log_dir = Path(args.log_dir).expanduser().absolute() / RUN_NAME
@@ -210,7 +214,8 @@ def main(args):
 
     # run experiments
     analysis = tune.run(
-        PPOTrainer,
+        APPOTrainer,
+        # "APPO",
         name=experiment_name,
         stop={"timesteps_total": 10000000/2},
         checkpoint_freq=10,
